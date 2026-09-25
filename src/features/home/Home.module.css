@@ -63,18 +63,35 @@
 }
 
 .insight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   max-width: 100%;
+  animation: subirInsight 450ms ease;
+}
+
+.insightTexto {
   font-size: 13px;
   line-height: 20px;
   color: var(--color-icon);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  animation: subirInsight 450ms ease;
 }
 
-.insight[data-tom='alerta'] {
+.insight[data-tom='alerta'] .insightTexto {
   color: rgba(239, 68, 68, 0.85);
+}
+
+/* Bolinha que "enche" de branco -> verde ao longo do ciclo (avisa a próxima troca).
+   Dura o mesmo tempo do intervalo (5s) e reinicia a cada troca. */
+.insightDot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: encherDot 5s linear forwards;
 }
 
 @keyframes subirInsight {
@@ -88,8 +105,18 @@
   }
 }
 
+@keyframes encherDot {
+  from {
+    background: #ffffff;
+  }
+  to {
+    background: #22c55e;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .insight {
+  .insight,
+  .insightDot {
     animation: none;
   }
 }

@@ -63,7 +63,7 @@ export function Home() {
     if (insights.length <= 1) return
     const id = setInterval(() => {
       setInsightIdx((i) => (i + 1) % insights.length)
-    }, 20000)
+    }, 5000)
     return () => clearInterval(id)
   }, [insights.length])
 
@@ -89,7 +89,8 @@ export function Home() {
                 className={styles.insight}
                 data-tom={insightAtual.tom}
               >
-                {insightAtual.texto}
+                <span className={styles.insightDot} aria-hidden="true" />
+                <span className={styles.insightTexto}>{insightAtual.texto}</span>
               </span>
             </div>
           )}
