@@ -1,0 +1,32 @@
+/**
+ * Design tokens — a fonte da verdade do visual.
+ * Espelha as variáveis do Figma. Mude aqui e o app inteiro acompanha.
+ */
+:root {
+  /* Cores */
+  --color-bg: #f4f4f5; /* fundo da tela */
+  --color-surface: #ffffff; /* o quadrado arredondado */
+  --color-border: #ececee;
+  --color-icon: #0a0a0a; /* preto, como na imagem */
+  --color-icon-active: #0a0a0a;
+  --color-hover: #e9e9eb; /* o hover cinza quadrado */
+  --color-focus: #3b82f6;
+
+  /* Espaçamentos */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+
+  /* Raios de borda */
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-2xl: 24px;
+
+  /* Sombra */
+  --shadow-panel:
+    0 10px 30px -10px rgba(0, 0, 0, 0.15), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+
+  /* Tipografia */
+  --font-sans: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
