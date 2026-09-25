@@ -1,5 +1,8 @@
-import { custoMensal } from '@/domain/fatura/calc'
+import { despesasPorCategoria } from '@/domain/fatura/calc'
 import type { Fatura } from '@/domain/fatura/types'
+import type { Receita } from '@/domain/receita/types'
+import type { DetalheDinheiroLivre } from '@/domain/receita/dinheiroLivre'
+import { receitasDoMes } from '@/domain/receita/filtros'
 import { formatarPreco } from '@/lib/format'
 
 // Um "aviso" que o sistema fala pro usuário.
@@ -11,89 +14,116 @@ export type Insight = {
 }
 
 type Args = {
-  recebido: number
-  imposto: number
-  despesas: number
-  livre: number
-  despesasList: Fatura[]
+  receitas: Receita[] // TODAS as receitas (para cálculos históricos)
+  despesas: Fatura[] // despesas fixas cadastradas
+  aliquota: number // % de imposto configurado
+  mes: string // mês atual "AAAA-MM"
+  detalhe: DetalheDinheiroLivre // cascata já calculada do mês atual
 }
 
 /**
- * Gera os insights do mês a partir dos NÚMEROS já calculados (função pura).
- * No futuro, uma IA vai reescrever esses textos com tom natural — mas os
- * números continuam vindo daqui (código confiável; IA só verbaliza).
+ * Gera os avisos "invisíveis" do mês: informações que o usuário NÃO consegue
+ * ler direto na tela (tendência, média, concentração, imposto do ano, reserva).
+ * Cada aviso tem uma GUARDA: se faltam dados, ele é omitido em vez de mostrar
+ * um número sem sentido.
+ *
+ * É uma função pura — no futuro uma IA reescreve os textos com tom natural,
+ * mas os números continuam vindo daqui (código confiável; IA só verbaliza).
  */
 export function gerarInsights({
-  recebido,
-  imposto,
+  receitas,
   despesas,
-  livre,
-  despesasList,
+  aliquota,
+  mes,
+  detalhe,
 }: Args): Insight[] {
   const lista: Insight[] = []
 
-  // Imposto a reservar
-  if (imposto > 0) {
+  // 1) Comparação com o mês passado — precisa ter receita no mês anterior
+  const anterior = mesAnterior(mes)
+  const recebidoAnterior = totalRecebido(receitasDoMes(receitas, anterior))
+  if (recebidoAnterior > 0) {
+    const pct = Math.round(
+      ((detalhe.recebido - recebidoAnterior) / recebidoAnterior) * 100,
+    )
+    if (pct !== 0) {
+      lista.push({
+        id: 'comparacao',
+        tom: pct > 0 ? 'bom' : 'alerta',
+        texto:
+          pct > 0
+            ? `Você recebeu ${pct}% a mais que no mês passado.`
+            : `Você recebeu ${Math.abs(pct)}% a menos que no mês passado.`,
+      })
+    }
+  }
+
+  // 2) Média mensal + posição do mês atual em relação a ela
+  const meses = new Set(receitas.map((r) => r.data.slice(0, 7)))
+  if (meses.size > 0) {
+    const totalGeral = totalRecebido(receitas)
+    const media = totalGeral / meses.size
+    const difPct = media > 0 ? Math.round(((detalhe.recebido - media) / media) * 100) : 0
+    const posicao =
+      difPct > 0
+        ? `${difPct}% acima dela`
+        : difPct < 0
+          ? `${Math.abs(difPct)}% abaixo dela`
+          : 'na média'
     lista.push({
-      id: 'imposto',
+      id: 'media',
+      tom: difPct >= 0 ? 'bom' : 'info',
+      texto: `Sua média mensal é ${formatarPreco(media)}. Este mês está ${posicao}.`,
+    })
+  }
+
+  // 3) Concentração de gasto — a categoria que mais pesa nas despesas fixas
+  const categorias = despesasPorCategoria(despesas)
+  if (categorias.length > 0 && detalhe.despesas > 0) {
+    const top = categorias[0]
+    lista.push({
+      id: 'concentracao',
+      tom: top.pct >= 50 ? 'alerta' : 'info',
+      texto: `${top.pct}% dos seus gastos fixos vão para ${top.categoria}.`,
+    })
+  }
+
+  // 4) Imposto acumulado no ano — a tela só mostra o do mês
+  const ano = mes.slice(0, 4)
+  const recebidoAno = totalRecebido(receitas.filter((r) => r.data.startsWith(ano)))
+  if (recebidoAno > 0 && aliquota > 0) {
+    const impostoAno = recebidoAno * (aliquota / 100)
+    lista.push({
+      id: 'imposto-ano',
       tom: 'info',
-      texto: `Separe ${formatarPreco(imposto)} para o imposto este mês.`,
+      texto: `Você já reservou ${formatarPreco(impostoAno)} em impostos em ${ano}.`,
     })
   }
 
-  // Quanto as despesas fixas comem do que entrou
-  if (recebido > 0) {
-    const pct = Math.round((despesas / recebido) * 100)
+  // 5) Reserva de emergência sugerida — 3 meses de despesas fixas
+  if (detalhe.despesas > 0) {
+    const reservaIdeal = detalhe.despesas * 3
     lista.push({
-      id: 'despesas-pct',
-      tom: pct > 50 ? 'alerta' : 'info',
-      texto: `Suas despesas fixas consomem ${pct}% do que entrou.`,
-    })
-  }
-
-  // Maior categoria de saída
-  const maior = maiorCategoria(despesasList)
-  if (maior) {
-    lista.push({
-      id: 'maior-cat',
+      id: 'reserva',
       tom: 'info',
-      texto: `Sua maior saída é ${maior.categoria} (${formatarPreco(maior.total)}).`,
-    })
-  }
-
-  // Situação do dinheiro livre
-  if (livre > 0) {
-    lista.push({
-      id: 'livre',
-      tom: 'bom',
-      texto: `Você tem ${formatarPreco(livre)} livres — dá pra poupar uma parte.`,
-    })
-  } else if (livre < 0) {
-    lista.push({
-      id: 'vermelho',
-      tom: 'alerta',
-      texto: `Atenção: você fechou ${formatarPreco(Math.abs(livre))} no vermelho este mês.`,
+      texto: `Uma reserva de emergência ideal seria ${formatarPreco(reservaIdeal)} (3 meses de despesas).`,
     })
   }
 
   return lista
 }
 
-// Categoria com a maior soma de custo mensal (ou null se não há despesas)
-function maiorCategoria(
-  despesas: Fatura[],
-): { categoria: string; total: number } | null {
-  if (despesas.length === 0) return null
+// Soma o valor de uma lista de receitas
+function totalRecebido(receitas: Receita[]): number {
+  return receitas.reduce((soma, r) => soma + r.valor, 0)
+}
 
-  const soma: Record<string, number> = {}
-  for (const f of despesas) {
-    const cat = f.categoria || 'Sem categoria'
-    soma[cat] = (soma[cat] ?? 0) + custoMensal(f)
-  }
-
-  let melhor: { categoria: string; total: number } | null = null
-  for (const [categoria, total] of Object.entries(soma)) {
-    if (!melhor || total > melhor.total) melhor = { categoria, total }
-  }
-  return melhor
+// "AAAA-MM" -> mês anterior "AAAA-MM" (cuida da virada de ano)
+function mesAnterior(mes: string): string {
+  const [ano, m] = mes.split('-').map(Number)
+  const d = new Date(ano, m - 1, 1) // 1º dia do mês atual
+  d.setMonth(d.getMonth() - 1) // volta um mês
+  const y = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  return `${y}-${mm}`
 }

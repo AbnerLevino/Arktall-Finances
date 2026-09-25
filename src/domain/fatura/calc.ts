@@ -16,6 +16,38 @@ export function custoMensalTotal(faturas: Fatura[]): number {
   return faturas.reduce((total, f) => total + custoMensal(f), 0)
 }
 
+// Um "fatia" do gasto: uma categoria, seu total mensal e o quanto ela
+// representa do total (%). Serve pro pop-up "onde você mais gasta" e pro
+// aviso de concentração.
+export type GastoCategoria = {
+  categoria: string
+  total: number
+  pct: number // participação no total de despesas (0–100)
+}
+
+/**
+ * Agrupa as despesas por categoria, somando o custo mensal de cada uma,
+ * calcula o % que cada categoria representa do total e devolve JÁ ORDENADO
+ * do maior gasto para o menor (a primeira é onde mais se gasta).
+ */
+export function despesasPorCategoria(faturas: Fatura[]): GastoCategoria[] {
+  const soma: Record<string, number> = {}
+  for (const f of faturas) {
+    const cat = f.categoria || 'Sem categoria'
+    soma[cat] = (soma[cat] ?? 0) + custoMensal(f)
+  }
+
+  const total = Object.values(soma).reduce((s, v) => s + v, 0)
+
+  return Object.entries(soma)
+    .map(([categoria, valor]) => ({
+      categoria,
+      total: valor,
+      pct: total > 0 ? Math.round((valor / total) * 100) : 0,
+    }))
+    .sort((a, b) => b.total - a.total)
+}
+
 // "AAAA-MM" -> índice absoluto de mês (ano*12 + mês), pra facilitar contas
 function indiceMes(iso: string): number {
   const [ano, mes] = iso.split('-').map(Number)

@@ -6,7 +6,7 @@ import { useConfig } from '@/domain/config/useConfig'
 import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
-import { custoMensal } from '@/domain/fatura/calc'
+import { despesasPorCategoria } from '@/domain/fatura/calc'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
@@ -65,14 +65,18 @@ export function Home() {
     b.data.localeCompare(a.data),
   )
 
-  // avisos calculados do mês (a "voz" do sistema — no futuro, verbalizados por IA)
+  // avisos "invisíveis" do mês (o que NÃO dá pra ler direto na tela):
+  // tendência vs. mês passado, média, concentração, imposto do ano, reserva.
   const insights = gerarInsights({
-    recebido: detalhe.recebido,
-    imposto: detalhe.imposto,
-    despesas: detalhe.despesas,
-    livre: detalhe.livre,
-    despesasList: despesas,
+    receitas,
+    despesas,
+    aliquota: config.aliquotaImposto,
+    mes: mesAtual,
+    detalhe,
   })
+
+  // despesas fixas agrupadas por categoria (maior → menor) pro pop-up
+  const categoriasGasto = despesasPorCategoria(despesas)
 
   // troca o aviso exibido a cada 20s (só faz sentido se há mais de um)
   useEffect(() => {
@@ -96,11 +100,12 @@ export function Home() {
         ? 'Boa tarde'
         : 'Boa noite'
 
-  // explicação da alíquota — dinâmica, com os números reais do mês
+  // explicação CONCEITUAL da alíquota — ensina o que é, sem repetir o número
+  // (o valor já aparece na cascata acima)
   const textoAliquota =
-    detalhe.recebido > 0
-      ? `${config.aliquotaImposto}% da sua receita (${formatarPreco(detalhe.recebido)}) = ${formatarPreco(detalhe.imposto)} reservados este mês.`
-      : 'Percentual reservado sobre toda receita recebida no mês.'
+    config.aliquotaImposto > 0
+      ? 'Fatia da sua receita reservada para impostos — já descontada do seu dinheiro livre.'
+      : 'Defina o percentual da receita que você separa para impostos.'
 
   return (
     <section className={styles.page}>
@@ -178,21 +183,39 @@ export function Home() {
                 <div
                   className={styles.despesasPopover}
                   role="dialog"
-                  aria-label="Detalhe das despesas fixas"
+                  aria-label="Onde você mais gasta"
                 >
-                  <span className={styles.popoverTitulo}>Despesas fixas</span>
+                  <span className={styles.popoverTitulo}>
+                    Onde você mais gasta
+                  </span>
 
-                  {despesas.length === 0 ? (
+                  {categoriasGasto.length === 0 ? (
                     <p className={styles.popoverVazio}>
                       Nenhuma despesa cadastrada.
                     </p>
                   ) : (
                     <ul className={styles.popoverLista}>
-                      {despesas.map((f) => (
-                        <li key={f.id} className={styles.popoverItem}>
-                          <span className={styles.popoverNome}>{f.nome}</span>
-                          <span className={styles.popoverValor}>
-                            {formatarPreco(custoMensal(f))}
+                      {categoriasGasto.map((c, i) => (
+                        <li
+                          key={c.categoria}
+                          className={`${styles.popoverItem} ${i === 0 ? styles.popoverTop : ''}`}
+                        >
+                          <div className={styles.popoverCatLinha}>
+                            <span className={styles.popoverNome}>
+                              {c.categoria}
+                            </span>
+                            <span className={styles.popoverValor}>
+                              {formatarPreco(c.total)}
+                            </span>
+                          </div>
+                          <div className={styles.popoverBarra}>
+                            <div
+                              className={styles.popoverBarraFill}
+                              style={{ width: `${c.pct}%` }}
+                            />
+                          </div>
+                          <span className={styles.popoverPct}>
+                            {c.pct}% do total
                           </span>
                         </li>
                       ))}
