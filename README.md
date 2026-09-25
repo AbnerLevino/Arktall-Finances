@@ -55,16 +55,20 @@ npm run type-check # só a checagem de tipos
 
 src/
 ├── main.tsx              # ponto de entrada
-├── App.tsx               # componente raiz + navegação por estado
-├── components/           # componentes reutilizáveis (ex.: Icon)
+├── App.tsx               # componente raiz + roteamento por estado
+├── domain/               # regra de negócio + tipos + persistência (o "backend" do front)
+│   ├── fatura/           #   types.ts (entidade Fatura) + calc.ts
+│   ├── categoria/        #   Categoria + hook useCategorias
+│   └── banco/            #   dados dos bancos + acharBanco
+├── lib/                  # utilitários puros (format.ts, image.ts)
+├── ui/                   # componentes GENÉRICOS reutilizáveis
+│   ├── Icon/  Select/  Modal/  MesAnoPicker/  IconeUpload/
+├── features/             # as telas, por contexto
+│   ├── dashboard/        #   Wallet + Subscriptions + charts/
+│   └── management/       #   Management + FaturaFormModal + selects
 ├── layout/               # Header, Sidebar, BlurOverlay
-├── pages/
-│   ├── Home/             # vitrine do "dinheiro livre"
-│   ├── Wallet/           # dashboard + lógica de domínio (calc, receitas...)
-│   └── Management/       # CRUD de despesas
-├── hooks/                # hooks reutilizáveis
+├── hooks/                # hooks transversais (ex.: useTema)
 └── styles/               # tokens.css + global.css
-docs/                     # documento de engenharia e planos
 
 ---
 🧭 Arquitetura em fases
