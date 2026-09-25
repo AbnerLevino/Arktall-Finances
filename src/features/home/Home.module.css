@@ -114,10 +114,21 @@
   }
 }
 
+/* Movimento reduzido (ex.: Windows com "efeitos de animação" desligado):
+   troca o SLIDE por um fade suave (sem deslocamento). A bolinha muda só de
+   COR (não é movimento), então continua animando normalmente. */
 @media (prefers-reduced-motion: reduce) {
-  .insight,
-  .insightDot {
-    animation: none;
+  .insight {
+    animation: fadeInsight 250ms ease;
+  }
+}
+
+@keyframes fadeInsight {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
