@@ -1,7 +1,7 @@
 # 💰 arktall
 
 > Gestão financeira para quem vive de **renda variável** — autônomos, freelancers, MEIs e pequenos empreendedores.
-O arktall não é só mais um "controlador de gastos" (isso uma planilha já faz). Ele responde à pergunta que a planilha **não** responde:
+O arktall não é só mais um "controlador de gastos". Ele responde à pergunta que a planilha **não** responde:
  
 > **"Do que entrou este mês, quanto é realmente meu pra gastar ou guardar?"**
 A entrega central é **um número** — o *dinheiro livre do mês* — calculado descontando da receita o imposto reservado e as despesas fixas.
