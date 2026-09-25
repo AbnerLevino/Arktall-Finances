@@ -35,12 +35,11 @@
   font-variant-numeric: tabular-nums; /* os dígitos do relógio não "pulam" */
 }
 
-/* Linha da saudação: título grande à esquerda, avisos do sistema à direita */
+/* Linha da saudação: título grande + aviso do sistema logo ao lado (colados) */
 .saudacao {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-4);
+  align-items: flex-end; /* o aviso pequeno alinha pela base do título */
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
