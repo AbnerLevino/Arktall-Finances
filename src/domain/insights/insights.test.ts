@@ -30,9 +30,10 @@ describe('gerarInsights', () => {
       detalhe: detalhe({ recebido: 6000, imposto: 600, livre: 5400 }),
     })
     const c = insights.find((i) => i.id === 'comparacao')
-    expect(c?.texto).toContain('20%')
-    expect(c?.texto).toContain('a mais')
+    expect(c?.valor).toBe('+20%')
+    expect(c?.detalhe).toContain('a mais')
     expect(c?.tom).toBe('bom')
+    expect(c?.nivel).toBe('info')
   })
 
   it('mostra a média mensal e onde o mês está em relação a ela', () => {
@@ -42,10 +43,11 @@ describe('gerarInsights', () => {
       detalhe: detalhe({ recebido: 6000, livre: 6000 }),
     })
     const m = insights.find((i) => i.id === 'media')
-    expect(m?.texto).toContain('acima')
+    expect(m?.rotulo).toBe('Média mensal')
+    expect(m?.detalhe).toContain('acima')
   })
 
-  it('gera concentração de gasto, imposto do ano e reserva', () => {
+  it('gera concentração (crítica), imposto do ano e reserva', () => {
     const receitas = [receita(10000, '2026-09-10')]
     const despesas = [despesa(1500, '🏠 Casa'), despesa(500, '🎬 Lazer')]
     const insights = gerarInsights({
@@ -57,18 +59,31 @@ describe('gerarInsights', () => {
     expect(ids).toContain('imposto-ano')
     expect(ids).toContain('reserva')
 
-    // Casa = 1500 de 2000 = 75% → alerta
+    // Casa = 1500 de 2000 = 75% → crítico
     const conc = insights.find((i) => i.id === 'concentracao')
-    expect(conc?.texto).toContain('75%')
-    expect(conc?.texto).toContain('🏠 Casa')
+    expect(conc?.valor).toBe('75%')
+    expect(conc?.detalhe).toContain('🏠 Casa')
+    expect(conc?.nivel).toBe('critico')
 
     // imposto do ano = 10000 × 10% = 1000
     const imp = insights.find((i) => i.id === 'imposto-ano')
-    expect(imp?.texto).toContain(formatarPreco(1000))
+    expect(imp?.valor).toContain(formatarPreco(1000))
 
     // reserva = despesas × 3 = 6000
     const res = insights.find((i) => i.id === 'reserva')
-    expect(res?.texto).toContain(formatarPreco(6000))
+    expect(res?.valor).toContain(formatarPreco(6000))
+  })
+
+  it('gera aviso crítico quando o mês fecha no vermelho', () => {
+    const insights = gerarInsights({
+      receitas: [receita(1000, '2026-09-10')],
+      despesas: [despesa(1500, 'x')], aliquota: 0, mes: '2026-09',
+      detalhe: detalhe({ recebido: 1000, despesas: 1500, livre: -500 }),
+    })
+    const v = insights.find((i) => i.id === 'vermelho')
+    expect(v?.nivel).toBe('critico')
+    expect(v?.tom).toBe('alerta')
+    expect(v?.valor).toContain(formatarPreco(500))
   })
 
   it('omite avisos quando faltam dados (sem mês anterior, sem despesas)', () => {

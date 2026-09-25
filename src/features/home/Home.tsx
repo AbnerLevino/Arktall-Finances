@@ -7,6 +7,7 @@ import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
 import { despesasPorCategoria } from '@/domain/fatura/calc'
+import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
@@ -21,14 +22,21 @@ export function Home() {
   const { receitas, adicionar, remover } = useReceitas()
   const { config, setAliquota } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
-  // relógio ao vivo do cabeçalho (atualiza a cada segundo)
+  // relógio ao vivo do cabeçalho (mostra o "agora", atualiza a cada segundo)
   const [agora, setAgora] = useState(() => new Date())
   useEffect(() => {
     const id = setInterval(() => setAgora(new Date()), 1000)
     return () => clearInterval(id) // limpa o timer quando o componente sai da tela
   }, [])
-  // qual aviso (insight) está sendo exibido agora — roda a cada 20s
+
+  // mês em foco no card (navegável pelas setas) — começa no mês corrente
+  const [mesSelecionado, setMesSelecionado] = useState(() =>
+    new Date().toISOString().slice(0, 7),
+  )
+
+  // qual aviso informativo está sendo exibido agora — roda a cada 5s
   const [insightIdx, setInsightIdx] = useState(0)
+
   // pop-up de detalhamento das despesas fixas + ref para fechar ao clicar fora
   const [despesasAbertas, setDespesasAbertas] = useState(false)
   const despesasRef = useRef<HTMLDivElement>(null)
@@ -49,47 +57,47 @@ export function Home() {
     return salvo ? JSON.parse(salvo) : []
   })
 
-  const mesAtual = new Date().toISOString().slice(0, 7) // "AAAA-MM"
-
   // valor DERIVADO: recalculado a cada render (não é guardado em estado).
-  // Agora vem o detalhamento inteiro da cascata, não só o número final.
+  // Segue o MÊS SELECIONADO — muda quando as setas navegam.
   const detalhe = dinheiroLivreDoMes({
     receitas,
     despesas,
     aliquota: config.aliquotaImposto,
-    mes: mesAtual,
+    mes: mesSelecionado,
   })
 
-  // receitas deste mês, mais recentes primeiro (para a tabela)
-  const receitasMes = [...receitasDoMes(receitas, mesAtual)].sort((a, b) =>
+  // receitas do mês em foco, mais recentes primeiro (para a lista)
+  const receitasMes = [...receitasDoMes(receitas, mesSelecionado)].sort((a, b) =>
     b.data.localeCompare(a.data),
   )
 
-  // avisos "invisíveis" do mês (o que NÃO dá pra ler direto na tela):
-  // tendência vs. mês passado, média, concentração, imposto do ano, reserva.
+  // avisos calculados do mês em foco, separados por hierarquia de urgência:
+  // críticos ficam fixos no topo; informativos rodam dentro do card.
   const insights = gerarInsights({
     receitas,
     despesas,
     aliquota: config.aliquotaImposto,
-    mes: mesAtual,
+    mes: mesSelecionado,
     detalhe,
   })
+  const criticos = insights.filter((i) => i.nivel === 'critico')
+  const informativos = insights.filter((i) => i.nivel === 'info')
+
+  // troca o aviso informativo exibido a cada 5s (só se há mais de um)
+  useEffect(() => {
+    if (informativos.length <= 1) return
+    const id = setInterval(() => {
+      setInsightIdx((i) => (i + 1) % informativos.length)
+    }, 5000)
+    return () => clearInterval(id)
+  }, [informativos.length])
+
+  // índice seguro (a lista pode encolher ao trocar de mês) + aviso atual
+  const idxAtual = informativos.length > 0 ? insightIdx % informativos.length : 0
+  const insightAtual = informativos.length > 0 ? informativos[idxAtual] : null
 
   // despesas fixas agrupadas por categoria (maior → menor) pro pop-up
   const categoriasGasto = despesasPorCategoria(despesas)
-
-  // troca o aviso exibido a cada 20s (só faz sentido se há mais de um)
-  useEffect(() => {
-    if (insights.length <= 1) return
-    const id = setInterval(() => {
-      setInsightIdx((i) => (i + 1) % insights.length)
-    }, 5000)
-    return () => clearInterval(id)
-  }, [insights.length])
-
-  // o aviso atual (com guarda caso a lista encolha)
-  const insightAtual =
-    insights.length > 0 ? insights[insightIdx % insights.length] : null
 
   // saudação por horário (usa o relógio que já roda de segundo em segundo)
   const hora = agora.getHours()
@@ -118,33 +126,90 @@ export function Home() {
           <h1 className={styles.welcome}>
             {saudacao}, <span className={styles.nome}>{NOME_USUARIO}</span>!
           </h1>
-
-          {insightAtual && (
-            <div className={styles.insightRotativo}>
-              {/* key força o remount ao trocar → replay da animação de subida */}
-              <span
-                key={insightAtual.id}
-                className={styles.insight}
-                data-tom={insightAtual.tom}
-              >
-                <span className={styles.insightDot} aria-hidden="true" />
-                <span className={styles.insightTexto}>{insightAtual.texto}</span>
-              </span>
-            </div>
-          )}
         </div>
+
+        {/* Avisos CRÍTICOS — fixos e destacados (perda/risco): peso de verdade */}
+        {criticos.length > 0 && (
+          <div className={styles.avisos}>
+            {criticos.map((c) => (
+              <div key={c.id} className={styles.avisoCritico} role="alert">
+                <span className={styles.avisoValor}>{c.valor}</span>
+                <span className={styles.avisoTexto}>
+                  {c.rotulo}
+                  {c.detalhe ? ` — ${c.detalhe}` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
       <div className={styles.card}>
         <div className={styles.top}>
           <div className={styles.heroMain}>
-            <span className={styles.label}>Dinheiro livre este mês</span>
+            {/* Título + navegador de mês (setas aparecem no hover) */}
+            <div className={styles.mesNav}>
+              <span className={styles.label}>Dinheiro livre</span>
+              <div className={styles.mesStepper}>
+                <button
+                  type="button"
+                  className={styles.mesSeta}
+                  onClick={() => setMesSelecionado(mesAnterior(mesSelecionado))}
+                  aria-label="Mês anterior"
+                >
+                  ‹
+                </button>
+                <span className={styles.mesLabel}>
+                  {formatarMesAno(mesSelecionado)}
+                </span>
+                <button
+                  type="button"
+                  className={styles.mesSeta}
+                  onClick={() => setMesSelecionado(mesSeguinte(mesSelecionado))}
+                  aria-label="Próximo mês"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
             <span
               className={`${styles.value} ${detalhe.livre < 0 ? styles.negativo : ''}`}
             >
               {formatarPreco(detalhe.livre)}
             </span>
+
+            {/* Aviso informativo rotativo — número em destaque (a "voz" do sistema) */}
+            {insightAtual && (
+              <div
+                key={insightAtual.id}
+                className={styles.insightCard}
+                data-tom={insightAtual.tom}
+              >
+                <div className={styles.insightHead}>
+                  <span className={styles.insightRotulo}>
+                    {insightAtual.rotulo}
+                  </span>
+                  {informativos.length > 1 && (
+                    <span className={styles.insightDots} aria-hidden="true">
+                      {informativos.map((info, i) => (
+                        <span
+                          key={info.id}
+                          className={`${styles.dot} ${i === idxAtual ? styles.dotAtivo : ''}`}
+                        />
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <span className={styles.insightValor}>{insightAtual.valor}</span>
+                {insightAtual.detalhe && (
+                  <span className={styles.insightDetalhe}>
+                    {insightAtual.detalhe}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           <div className={styles.divider} />
@@ -249,11 +314,13 @@ export function Home() {
 
       {/* Card 2 — Receitas do mês (lista) */}
       <div className={styles.card}>
-        <span className={styles.cardTitle}>Receitas do mês</span>
+        <span className={styles.cardTitle}>
+          Receitas de {formatarMesAno(mesSelecionado)}
+        </span>
 
         {receitasMes.length === 0 ? (
           <p className={styles.vazio}>
-            Nenhuma receita cadastrada este mês. Use o botão + para adicionar.
+            Nenhuma receita neste mês. Use o botão + para adicionar.
           </p>
         ) : (
           <div className={styles.listWrap}>

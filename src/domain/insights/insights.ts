@@ -3,32 +3,41 @@ import type { Fatura } from '@/domain/fatura/types'
 import type { Receita } from '@/domain/receita/types'
 import type { DetalheDinheiroLivre } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
+import { mesAnterior } from '@/lib/mes'
 import { formatarPreco } from '@/lib/format'
 
-// Um "aviso" que o sistema fala pro usuário.
-// tom: muda a cor/ênfase (info = neutro, bom = positivo, alerta = atenção).
+// Um "aviso" que o sistema fala pro usuário, já quebrado em partes para
+// a tela dar peso ao número:
+//   rotulo  -> o que é (pequeno)      ex.: "Média mensal"
+//   valor   -> o número (destaque)    ex.: "R$ 5.500,00"
+//   detalhe -> complemento (menor)    ex.: "Este mês está 9% acima da média"
+// nivel: 'critico' = fixo/destacado no topo (perda, risco); 'info' = rotativo no card.
+// tom: cor/ênfase (info neutro, bom positivo, alerta atenção).
 export type Insight = {
   id: string
-  texto: string
+  rotulo: string
+  valor: string
+  detalhe?: string
   tom: 'info' | 'bom' | 'alerta'
+  nivel: 'critico' | 'info'
 }
 
 type Args = {
   receitas: Receita[] // TODAS as receitas (para cálculos históricos)
   despesas: Fatura[] // despesas fixas cadastradas
   aliquota: number // % de imposto configurado
-  mes: string // mês atual "AAAA-MM"
-  detalhe: DetalheDinheiroLivre // cascata já calculada do mês atual
+  mes: string // mês em foco "AAAA-MM"
+  detalhe: DetalheDinheiroLivre // cascata já calculada do mês em foco
 }
 
 /**
- * Gera os avisos "invisíveis" do mês: informações que o usuário NÃO consegue
- * ler direto na tela (tendência, média, concentração, imposto do ano, reserva).
- * Cada aviso tem uma GUARDA: se faltam dados, ele é omitido em vez de mostrar
- * um número sem sentido.
+ * Gera os avisos do mês. São "invisíveis": respondem o que o usuário NÃO
+ * consegue ler direto na tela (tendência, média, concentração, imposto do ano,
+ * reserva) + o alerta crítico de mês no vermelho.
  *
- * É uma função pura — no futuro uma IA reescreve os textos com tom natural,
- * mas os números continuam vindo daqui (código confiável; IA só verbaliza).
+ * Cada aviso tem GUARDA: se faltam dados, é omitido em vez de mostrar número
+ * sem sentido. Função pura — no futuro uma IA reescreve os textos, mas os
+ * números continuam vindo daqui.
  */
 export function gerarInsights({
   receitas,
@@ -39,9 +48,20 @@ export function gerarInsights({
 }: Args): Insight[] {
   const lista: Insight[] = []
 
+  // CRÍTICO — mês fechou no vermelho (saídas passaram do que entrou)
+  if (detalhe.livre < 0) {
+    lista.push({
+      id: 'vermelho',
+      nivel: 'critico',
+      tom: 'alerta',
+      rotulo: 'Mês no vermelho',
+      valor: `− ${formatarPreco(Math.abs(detalhe.livre))}`,
+      detalhe: 'suas saídas passaram do que entrou',
+    })
+  }
+
   // 1) Comparação com o mês passado — precisa ter receita no mês anterior
-  const anterior = mesAnterior(mes)
-  const recebidoAnterior = totalRecebido(receitasDoMes(receitas, anterior))
+  const recebidoAnterior = totalRecebido(receitasDoMes(receitas, mesAnterior(mes)))
   if (recebidoAnterior > 0) {
     const pct = Math.round(
       ((detalhe.recebido - recebidoAnterior) / recebidoAnterior) * 100,
@@ -49,11 +69,14 @@ export function gerarInsights({
     if (pct !== 0) {
       lista.push({
         id: 'comparacao',
-        tom: pct > 0 ? 'bom' : 'alerta',
-        texto:
+        nivel: 'info',
+        tom: pct > 0 ? 'bom' : 'info',
+        rotulo: 'Vs. mês passado',
+        valor: `${pct > 0 ? '+' : '−'}${Math.abs(pct)}%`,
+        detalhe:
           pct > 0
-            ? `Você recebeu ${pct}% a mais que no mês passado.`
-            : `Você recebeu ${Math.abs(pct)}% a menos que no mês passado.`,
+            ? 'a mais que no mês passado'
+            : 'a menos que no mês passado',
       })
     }
   }
@@ -61,30 +84,36 @@ export function gerarInsights({
   // 2) Média mensal + posição do mês atual em relação a ela
   const meses = new Set(receitas.map((r) => r.data.slice(0, 7)))
   if (meses.size > 0) {
-    const totalGeral = totalRecebido(receitas)
-    const media = totalGeral / meses.size
+    const media = totalRecebido(receitas) / meses.size
     const difPct = media > 0 ? Math.round(((detalhe.recebido - media) / media) * 100) : 0
     const posicao =
       difPct > 0
-        ? `${difPct}% acima dela`
+        ? `${difPct}% acima da média`
         : difPct < 0
-          ? `${Math.abs(difPct)}% abaixo dela`
+          ? `${Math.abs(difPct)}% abaixo da média`
           : 'na média'
     lista.push({
       id: 'media',
+      nivel: 'info',
       tom: difPct >= 0 ? 'bom' : 'info',
-      texto: `Sua média mensal é ${formatarPreco(media)}. Este mês está ${posicao}.`,
+      rotulo: 'Média mensal',
+      valor: formatarPreco(media),
+      detalhe: `Este mês está ${posicao}`,
     })
   }
 
-  // 3) Concentração de gasto — a categoria que mais pesa nas despesas fixas
+  // 3) Concentração de gasto — a categoria que mais pesa (crítico se ≥ 50%)
   const categorias = despesasPorCategoria(despesas)
   if (categorias.length > 0 && detalhe.despesas > 0) {
     const top = categorias[0]
+    const critico = top.pct >= 50
     lista.push({
       id: 'concentracao',
-      tom: top.pct >= 50 ? 'alerta' : 'info',
-      texto: `${top.pct}% dos seus gastos fixos vão para ${top.categoria}.`,
+      nivel: critico ? 'critico' : 'info',
+      tom: critico ? 'alerta' : 'info',
+      rotulo: 'Maior concentração de gasto',
+      valor: `${top.pct}%`,
+      detalhe: `dos gastos fixos em ${top.categoria}`,
     })
   }
 
@@ -92,21 +121,25 @@ export function gerarInsights({
   const ano = mes.slice(0, 4)
   const recebidoAno = totalRecebido(receitas.filter((r) => r.data.startsWith(ano)))
   if (recebidoAno > 0 && aliquota > 0) {
-    const impostoAno = recebidoAno * (aliquota / 100)
     lista.push({
       id: 'imposto-ano',
+      nivel: 'info',
       tom: 'info',
-      texto: `Você já reservou ${formatarPreco(impostoAno)} em impostos em ${ano}.`,
+      rotulo: `Imposto reservado em ${ano}`,
+      valor: formatarPreco(recebidoAno * (aliquota / 100)),
+      detalhe: 'acumulado no ano',
     })
   }
 
   // 5) Reserva de emergência sugerida — 3 meses de despesas fixas
   if (detalhe.despesas > 0) {
-    const reservaIdeal = detalhe.despesas * 3
     lista.push({
       id: 'reserva',
+      nivel: 'info',
       tom: 'info',
-      texto: `Uma reserva de emergência ideal seria ${formatarPreco(reservaIdeal)} (3 meses de despesas).`,
+      rotulo: 'Reserva de emergência ideal',
+      valor: formatarPreco(detalhe.despesas * 3),
+      detalhe: '3 meses de despesas fixas',
     })
   }
 
@@ -116,14 +149,4 @@ export function gerarInsights({
 // Soma o valor de uma lista de receitas
 function totalRecebido(receitas: Receita[]): number {
   return receitas.reduce((soma, r) => soma + r.valor, 0)
-}
-
-// "AAAA-MM" -> mês anterior "AAAA-MM" (cuida da virada de ano)
-function mesAnterior(mes: string): string {
-  const [ano, m] = mes.split('-').map(Number)
-  const d = new Date(ano, m - 1, 1) // 1º dia do mês atual
-  d.setMonth(d.getMonth() - 1) // volta um mês
-  const y = d.getFullYear()
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  return `${y}-${mm}`
 }

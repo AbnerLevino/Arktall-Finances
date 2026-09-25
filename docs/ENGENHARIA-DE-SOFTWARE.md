@@ -71,6 +71,7 @@ Foco único desta fase (escopo enxuto e vendável). Requisitos **RF18–RF22** (
 - Suavização mês gordo/magro (reserva/colchão).
 - **IA copiloto** (insights e recomendações).
 - **Importação de extrato** bancário.
+- **Tela de Histórico/Extrato:** navegação e filtros de período mais finos (dia, semana, mês, ano). Fica **fora da Home** de propósito — a Home é a vitrine do mês corrente; filtros finos poluiriam e fugiriam do padrão dela.
 
 ### 2.4 Fora do escopo
 - Integração via **Open Finance** (descartada — decisão de projeto).
@@ -134,6 +135,10 @@ Módulo foco da fase atual. Ainda a implementar.
 - **RF23** 🔜 — O sistema deve permitir definir uma **reserva/colchão** e descontá-la do dinheiro livre (suavização mês gordo/magro).
 - **RF24** 🔜 — O sistema deve oferecer **insights automáticos** sobre gastos e receitas (IA copiloto).
 - **RF25** 🔜 — O sistema deve permitir **importar um extrato** bancário e sugerir a categorização das transações.
+- **RF26** 🎯 — O sistema deve permitir **navegar entre meses na Home** (mês corrente, anteriores e seguintes), fazendo o card de dinheiro livre, os avisos e a lista de receitas refletirem o mês selecionado. Interação por *stepper* discreto (`‹ mês ›`), sem calendário.
+- **RF27** 🔜 — O sistema deve oferecer uma **tela de Histórico/Extrato** com filtros de período mais finos (**dia, semana, mês, ano**). Fica **fora da Home** para preservar o padrão dela (a Home é a vitrine do mês corrente).
+
+> **Nota de design — avisos por hierarquia de urgência:** os avisos calculados (seção de insights) devem ser separados por peso. Avisos **críticos/perda** (ex.: fechar no vermelho, concentração excessiva de gasto) aparecem **fixos e destacados no topo**, com cara de alerta. Avisos **informativos** (média, imposto do ano, reserva sugerida, comparação com mês anterior) ficam numa área própria dentro do card, **rotativos**, com o número em destaque. Princípio: *"se tudo é aviso, nada é aviso"*.
 
 ---
 
