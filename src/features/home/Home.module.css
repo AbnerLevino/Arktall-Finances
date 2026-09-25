@@ -27,6 +27,15 @@
   font-variant-numeric: tabular-nums; /* os dígitos do relógio não "pulam" */
 }
 
+/* Linha da saudação: título grande à esquerda, avisos do sistema à direita */
+.saudacao {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
 /* Saudação em destaque — mesma pegada do número (grande e bold) */
 .welcome {
   font-size: 32px;
@@ -34,6 +43,44 @@
   line-height: 1.15;
   color: var(--color-icon-hover);
   text-wrap: balance;
+}
+
+/* Avisos calculados (a "voz" do sistema; futura camada de IA) */
+.insights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: 380px;
+}
+
+.insight {
+  display: flex;
+  gap: var(--space-2);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-icon);
+}
+
+/* bolinha marcadora antes de cada aviso */
+.insight::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.insight[data-tom='alerta'] {
+  color: rgba(239, 68, 68, 0.85);
+}
+
+.insight[data-tom='alerta']::before {
+  background: #ef4444;
 }
 
 /* Card genérico — os dois blocos usam a MESMA superfície (é isso que dá coesão) */

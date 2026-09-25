@@ -5,6 +5,7 @@ import { useReceitas } from '@/domain/receita/useReceitas'
 import { useConfig } from '@/domain/config/useConfig'
 import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
+import { gerarInsights } from '@/domain/insights/insights'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
@@ -46,13 +47,34 @@ export function Home() {
     b.data.localeCompare(a.data),
   )
 
+  // avisos calculados do mês (a "voz" do sistema — no futuro, verbalizados por IA)
+  const insights = gerarInsights({
+    recebido: detalhe.recebido,
+    imposto: detalhe.imposto,
+    despesas: detalhe.despesas,
+    livre: detalhe.livre,
+    despesasList: despesas,
+  })
+
   return (
     <section className={styles.page}>
       <header className={styles.pageHeader}>
         <span className={styles.pageTitle}>{formatarDataHora(agora)}</span>
       </header>
 
-      <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
+      <div className={styles.saudacao}>
+        <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
+
+        {insights.length > 0 && (
+          <ul className={styles.insights}>
+            {insights.map((i) => (
+              <li key={i.id} className={styles.insight} data-tom={i.tom}>
+                {i.texto}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
       <div className={styles.card}>
