@@ -116,6 +116,13 @@
   border-radius: 3px;
 }
 
+/* Form compacto: altura acompanha o conteúdo (poucos campos) */
+.formCompact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
 /* Bloco de campos com peso (Identidade, Cobrança, Agenda) */
 .block {
   display: flex;
