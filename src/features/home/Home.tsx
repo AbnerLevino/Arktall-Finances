@@ -49,8 +49,10 @@ export function Home() {
   return (
     <section className={styles.page}>
       <header className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>{formatarDataHora(agora)}</h1>
+        <span className={styles.pageTitle}>{formatarDataHora(agora)}</span>
       </header>
+
+      <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
 
       {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
       <div className={styles.card}>

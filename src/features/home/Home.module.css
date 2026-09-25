@@ -27,6 +27,15 @@
   font-variant-numeric: tabular-nums; /* os dígitos do relógio não "pulam" */
 }
 
+/* Saudação em destaque — mesma pegada do número (grande e bold) */
+.welcome {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-icon-hover);
+  text-wrap: balance;
+}
+
 /* Card genérico — os dois blocos usam a MESMA superfície (é isso que dá coesão) */
 .card {
   display: flex;
