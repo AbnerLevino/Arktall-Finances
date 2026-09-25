@@ -3,6 +3,12 @@ export function formatarPreco(valor: number): string {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
+// Formata uma data ISO "AAAA-MM-DD" como "DD/MM/AAAA"
+export function formatarData(iso: string): string {
+  const [ano, mes, dia] = iso.split('-')
+  return `${dia}/${mes}/${ano}`
+}
+
 // Mostra o dia de cobrança (ex: 10 -> "Dia 10")
 export function formatarVencimento(dia: number | null): string {
   return dia ? `Dia ${dia}` : '—'

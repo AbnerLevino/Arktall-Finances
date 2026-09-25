@@ -114,10 +114,87 @@
   border-color: var(--color-accent);
 }
 
-.hint {
+/* Seção "Receitas do mês" */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  color: var(--color-icon);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table td {
+  padding: var(--space-3);
+  font-size: 14px;
+  color: var(--color-icon-hover);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* alinhamento à direita — especificidade maior que ".table th/td" de propósito */
+.table .right {
+  text-align: right;
+}
+
+.valorCell {
+  font-variant-numeric: tabular-nums;
+}
+
+.remover {
+  display: inline-grid;
+  place-items: center;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-icon);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.remover:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.vazio {
+  padding: var(--space-4);
+  text-align: center;
   font-size: 13px;
   color: var(--color-icon);
-  opacity: 0.8;
+  opacity: 0.85;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
 /* Botão flutuante de nova receita */

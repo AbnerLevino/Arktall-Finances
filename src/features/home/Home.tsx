@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import styles from './Home.module.css'
+import { Icon } from '@/ui/Icon/Icon'
 import { useReceitas } from '@/domain/receita/useReceitas'
 import { useConfig } from '@/domain/config/useConfig'
 import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
-import { formatarPreco } from '@/lib/format'
+import { receitasDoMes } from '@/domain/receita/filtros'
+import { formatarPreco, formatarData } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
 
@@ -12,7 +14,7 @@ const CHAVE_FATURAS = 'arktall:faturas'
 
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
-  const { receitas, adicionar } = useReceitas()
+  const { receitas, adicionar, remover } = useReceitas()
   const { config, setAliquota } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
 
@@ -32,6 +34,11 @@ export function Home() {
     aliquota: config.aliquotaImposto,
     mes: mesAtual,
   })
+
+  // receitas deste mês, mais recentes primeiro (para a tabela)
+  const receitasMes = [...receitasDoMes(receitas, mesAtual)].sort((a, b) =>
+    b.data.localeCompare(a.data),
+  )
 
   return (
     <section className={styles.page}>
@@ -82,11 +89,47 @@ export function Home() {
         />
       </label>
 
-      <p className={styles.hint}>
-        {receitas.length === 0
-          ? 'Cadastre sua primeira receita no botão +'
-          : `${receitas.length} receita(s) cadastrada(s) no total.`}
-      </p>
+      <section className={styles.section}>
+        <span className={styles.sectionTitle}>Receitas do mês</span>
+
+        {receitasMes.length === 0 ? (
+          <p className={styles.vazio}>
+            Nenhuma receita cadastrada este mês. Use o botão + para adicionar.
+          </p>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Origem</th>
+                <th className={styles.right}>Valor</th>
+                <th className={styles.right} aria-label="Ações"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {receitasMes.map((r) => (
+                <tr key={r.id}>
+                  <td>{formatarData(r.data)}</td>
+                  <td>{r.origem || '—'}</td>
+                  <td className={`${styles.right} ${styles.valorCell}`}>
+                    {formatarPreco(r.valor)}
+                  </td>
+                  <td className={styles.right}>
+                    <button
+                      type="button"
+                      className={styles.remover}
+                      onClick={() => remover(r.id)}
+                      aria-label={`Excluir receita de ${r.origem || 'origem não informada'}`}
+                    >
+                      <Icon name="trash" size={15} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
 
       <button
         type="button"

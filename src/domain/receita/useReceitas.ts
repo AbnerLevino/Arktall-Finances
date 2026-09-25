@@ -26,6 +26,11 @@ export function useReceitas() {
     setReceitas((prev) => [...prev, receita])
   }
 
-  // (4) entrega o dado + a ação pra quem usar o hook
-  return { receitas, adicionar }
+  // (4) remover: cria uma NOVA lista SEM o item do id escolhido (o "irmão" do adicionar)
+  const remover = (id: string) => {
+    setReceitas((prev) => prev.filter((r) => r.id !== id))
+  }
+
+  // (5) entrega o dado + as ações pra quem usar o hook
+  return { receitas, adicionar, remover }
 }
