@@ -1,0 +1,22 @@
+/* Overlay de blur que cobre o fundo (atrás da Sidebar) */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  backdrop-filter: blur(2px);
+  background: transparent;
+  pointer-events: none;
+  z-index: 50;
+  animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn {
+  from {
+    backdrop-filter: blur(0px);
+  }
+  to {
+    backdrop-filter: blur(2px);
+  }
+}

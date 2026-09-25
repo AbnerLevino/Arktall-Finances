@@ -1,16 +1,19 @@
-/**
- * Design tokens — a fonte da verdade do visual.
- * Espelha as variáveis do Figma. Mude aqui e o app inteiro acompanha.
- */
 :root {
-  /* Cores */
-  --color-bg: #f4f4f5; /* fundo da tela */
-  --color-surface: #ffffff; /* o quadrado arredondado */
-  --color-border: #ececee;
-  --color-icon: #0a0a0a; /* preto, como na imagem */
-  --color-icon-active: #0a0a0a;
-  --color-hover: #e9e9eb; /* o hover cinza quadrado */
-  --color-focus: #3b82f6;
+  /* Cores — tema escuro premium (padrão) */
+  --color-bg: #0f0f11; /* fundo da tela (quase-preto quente) */
+  --color-surface: #1a1a1e; /* sidebar/cards, um degrau acima do fundo */
+  --color-border: #2a2a30;
+  --color-icon: #b4b4bd; /* ícone/texto em repouso (cinza claro) */
+  --color-icon-active: #d4af37; /* ícone ativo em dourado cheio */
+  --color-icon-hover: #e8c766; /* texto forte / títulos / hover (ouro claro) */
+  --color-hover: #26262c; /* fundo do hover */
+  --color-focus: #d4af37;
+
+  /* Cor de marca (accent) — dourado, prosperidade */
+  --color-accent: #d4af37; /* dourado clássico metálico */
+  --color-accent-soft: rgba(212, 175, 55, 0.12); /* fundo do item ativo */
+  --color-accent-glow: rgba(212, 175, 55, 0.25); /* brilho do item ativo */
+  --color-on-accent: #1a1a1e; /* texto EM CIMA do dourado (escuro nos 2 temas) */
 
   /* Espaçamentos */
   --space-1: 4px;
@@ -21,7 +24,7 @@
   /* Raios de borda */
   --radius-md: 10px;
   --radius-lg: 14px;
-  --radius-2xl: 24px;
+  --radius-2xl: 35px;
 
   /* Sombra */
   --shadow-panel:
@@ -29,4 +32,25 @@
 
   /* Tipografia */
   --font-sans: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Tema CLARO — só as cores mudam; dourado continua sendo a marca */
+[data-theme='light'] {
+  --color-bg: #f6f5f2; /* off-white quente (espelha o quase-preto quente) */
+  --color-surface: #ffffff; /* cards brancos, um degrau acima do fundo */
+  --color-border: #e5e1d8;
+  --color-icon: #57534e; /* texto/ícone em repouso (cinza quente legível) */
+  --color-icon-active: #9a7b1f; /* dourado mais fechado (contraste no claro) */
+  --color-icon-hover: #1c1917; /* texto forte / títulos (quase-preto quente) */
+  --color-hover: #efece5; /* fundo do hover no claro */
+  --color-focus: #9a7b1f;
+
+  --color-accent: #d4af37; /* mesma marca dourada dos fills (FAB, Salvar) */
+  --color-accent-soft: rgba(212, 175, 55, 0.16);
+  --color-accent-glow: rgba(212, 175, 55, 0.35);
+  /* --color-on-accent NÃO se repete: herda o escuro do :root (é o certo) */
+
+  /* Sombra mais suave em fundo claro */
+  --shadow-panel:
+    0 10px 30px -12px rgba(0, 0, 0, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.06);
 }

@@ -1,0 +1,139 @@
+.panel {
+  width: 280px;
+  align-self: flex-start; /* começa alinhado ao topo do modal */
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-4);
+  animation: deslizar 180ms ease;
+}
+
+@keyframes deslizar {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+.close {
+  border: none;
+  background: transparent;
+  color: var(--color-icon);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  width: 28px;
+  height: 28px;
+}
+
+.close:hover {
+  background: var(--color-hover);
+  color: var(--color-icon-hover);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.row .field {
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field > span {
+  font-size: 11px;
+  color: var(--color-icon);
+}
+
+.field input {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-icon-hover);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.field input:focus {
+  border-color: var(--color-accent);
+}
+
+/* Input de cor nativo — remove a moldura padrão feia */
+.color {
+  height: 34px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+.previewWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.previewLabel {
+  font-size: 11px;
+  color: var(--color-icon);
+  opacity: 0.7;
+}
+
+.previewTag {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+}
+
+.save {
+  margin-top: var(--space-2);
+  padding: 9px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.save:hover {
+  filter: brightness(1.08);
+}

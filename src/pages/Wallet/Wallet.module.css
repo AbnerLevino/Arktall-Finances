@@ -1,0 +1,266 @@
+.page {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Área de conteúdo abaixo das abas — começa do topo, com respiro */
+.pageContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-4);
+}
+
+/* Seção da tabela (título + grupos) — presa do meio ao fim */
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 50%;
+  align-self: flex-start;
+  margin-top: auto; /* empurra título + tabela pro fim, topo no meio */
+  height: 52vh; /* ocupa do meio ao fim da página */
+  min-height: 0; /* permite o filho rolável encolher dentro do flex */
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+/* Abas navegáveis Wallet | Bills */
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-icon);
+  opacity: 0.45;
+  cursor: pointer;
+  padding: 4px 2px;
+  border-bottom: 2px solid transparent;
+  transition:
+    opacity 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.tab:hover {
+  opacity: 0.75;
+}
+
+.tab[data-active='true'] {
+  opacity: 1;
+  color: var(--color-icon-hover);
+  border-bottom-color: var(--color-accent);
+}
+
+.tabDivider {
+  font-size: 14px;
+  color: var(--color-icon);
+  opacity: 0.3;
+}
+
+/* Gráfico de categorias flutuando acima do FAB (canto inferior direito) */
+.chartFloat {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + 52px + var(--space-3));
+  z-index: 140;
+}
+
+.empty {
+  opacity: 0.7;
+}
+
+/* Topo: KPIs à esquerda, gráfico de categorias à direita */
+.topArea {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.kpis {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.kpiCard {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--space-2) var(--space-3);
+  min-width: 150px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: var(--color-icon);
+  opacity: 0.7;
+}
+
+.kpiValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
+/* Container dos grupos de categoria — rola quando passa da altura da seção */
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto; /* ao chegar no fim, rola pra ver mais */
+  padding-right: 4px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Cabeçalho da categoria: emoji + nome + linha fina de separação */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.groupTitle {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-icon-hover);
+}
+
+.groupLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+  opacity: 0.6;
+}
+
+/* Coluna de cards dentro de um grupo */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Card fino em linha reta: nome + infos inline + preço */
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-icon-hover);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 16px -4px var(--color-accent-glow);
+}
+
+/* Infos alinhadas em linha reta depois do nome */
+.cardInfoLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+.cardIcone {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.cardNome {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cardPreco {
+  margin-left: auto; /* empurra o preço pro fim da linha */
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+/* Tag de categoria com a cor da categoria (fallback: dourado) */
+.categoriaTag {
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+/* Info rotulada inline (rótulo + valor) usada nas linhas do card */
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.infoLabel {
+  font-size: 11px;
+  color: var(--color-icon);
+  opacity: 0.55;
+}
+
+.infoValue {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--color-icon-hover);
+}
+
+.bancoLogo {
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  border-radius: 4px;
+}

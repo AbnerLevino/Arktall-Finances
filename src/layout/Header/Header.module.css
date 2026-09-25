@@ -1,0 +1,104 @@
+/* Header no topo direito */
+.header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  padding: var(--space-4);
+  z-index: 40;
+}
+
+/* Container dos botões (foto + exit) */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Foto de perfil */
+.profileImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px var(--color-border);
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.profileImage:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+/* Botão de exit */
+.exitButton {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+.exitButton:hover {
+  transform: scale(1.05);
+  background: var(--color-hover);
+}
+
+.exitButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Toggle de tema — pílula arredondada com sol | lua lado a lado */
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+/* Cada lado (sol / lua) — círculo que acende quando é o tema ativo */
+.themeOption {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-icon);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.themeOption:hover {
+  color: var(--color-icon-hover);
+}
+
+/* Lado ativo: fundo dourado suave + ícone dourado */
+.themeOption[data-active='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-icon-active);
+}
+
+.themeOption:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

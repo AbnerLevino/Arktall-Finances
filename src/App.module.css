@@ -1,7 +1,16 @@
-/* Centraliza o quadrado no meio da tela */
+/* Layout: respira a barra fixa à esquerda */
 .app {
   min-height: 100vh;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: stretch;
   padding: var(--space-4);
+  gap: var(--space-4);
+  position: relative;
+  margin-left: 56px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0; /* impede filhos largos (gráfico) de esticar o layout */
+  color: var(--color-icon);
 }

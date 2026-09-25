@@ -1,0 +1,457 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 200;
+  animation: fade 160ms ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Palco: alinha o painel de categoria ao lado do modal, topo alinhado */
+.stage {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.dialog {
+  /* Largura fixa; altura acompanha o conteúdo e termina após o botão Salvar */
+  width: min(460px, calc(100vw - 2 * var(--space-4)));
+  max-height: calc(100vh - 2 * var(--space-4));
+  overflow-y: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  padding: var(--space-4);
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 160, 170, 0.35) transparent;
+}
+
+/* Barra de rolagem fina e cinza (Chrome/Edge/Safari) */
+.dialog::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dialog::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 170, 0.35);
+  border-radius: 999px;
+}
+
+.dialog::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 170, 0.5);
+}
+
+.dialogHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.dialogHeader h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+.close {
+  border: none;
+  background: transparent;
+  color: var(--color-icon);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+}
+
+.close:hover {
+  background: var(--color-hover);
+  color: var(--color-icon-hover);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Altura FIXA e igual para os dois tipos (calibrada pela conta variável, a
+     mais curta): ela cabe inteira; a assinatura, com mais campos, rola aqui
+     dentro. O cabeçalho fica fixo acima, fora deste scroll. */
+  height: 480px;
+  overflow-y: auto;
+  /* Espaço pra barra não colar nos campos */
+  padding-right: var(--space-2);
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 160, 170, 0.35) transparent;
+}
+
+/* Barra de rolagem fina (Chrome/Edge/Safari) */
+.form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 170, 0.35);
+  border-radius: 3px;
+}
+
+/* Bloco de campos com peso (Identidade, Cobrança, Agenda) */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.block:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.blockTitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+}
+
+.row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.row .field {
+  flex: 1;
+}
+
+/* Cabeçalho da identidade: ícone médio + nome lado a lado, à esquerda */
+.identityHeader {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.identityHeader .fieldNome {
+  flex: 1;
+}
+
+/* Campo do ícone não estica — fica do tamanho do quadradinho */
+.fieldIcone {
+  flex: 0 0 auto;
+}
+
+/* Nome ganha mais largura; Categoria fica mais estreita */
+.row .fieldNome {
+  flex: 2;
+}
+
+.row .fieldCategoria {
+  flex: 1;
+}
+
+/* Mensagem de erro (ex: ícone sem transparência) */
+.erro {
+  font-size: 11px;
+  color: #ef4444;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field > span {
+  font-size: 12px;
+  color: var(--color-icon);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-icon-hover);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.field textarea {
+  height: auto;
+  padding: 10px 12px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--color-accent);
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+/* Linha do "Parcelar" — checkbox + campo de número lado a lado */
+.parcelar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.parcelasInput {
+  width: 130px;
+  height: 42px;
+  padding: 0 12px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-icon-hover);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.parcelasInput:focus {
+  border-color: var(--color-accent);
+}
+
+/* Indicador: linha fina dourada contornando o campo, piscando suave.
+   Para de piscar quando o usuário foca pra digitar. */
+.destaque {
+  animation: piscarBorda 1.2s ease-in-out infinite;
+}
+
+.destaque:focus {
+  animation: none;
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+@keyframes piscarBorda {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  50% {
+    box-shadow: 0 0 0 1px transparent;
+  }
+}
+
+/* "Parcelar" — texto simples (sem box em volta) */
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--color-icon-hover);
+  cursor: pointer;
+}
+
+/* Só o quadradinho tem o fundo escuro do dropdown */
+.checkbox input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-content: center;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: border-color 140ms ease;
+}
+
+.checkbox input[type='checkbox']:checked {
+  border-color: var(--color-accent);
+}
+
+/* Preenchimento dourado quando marcado */
+.checkbox input[type='checkbox']:checked::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* Logo do banco no modal de detalhes */
+.detailBanco {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.detailLogo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.actions button {
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font: inherit;
+}
+
+.cancel {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-icon);
+}
+
+.cancel:hover {
+  background: var(--color-hover);
+}
+
+.save {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.save:hover {
+  filter: brightness(1.08);
+}
+
+.editar {
+  background: transparent;
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.editar:hover {
+  background: var(--color-accent-soft);
+}
+
+.delete {
+  background: transparent;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.delete:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.details dt {
+  font-size: 12px;
+  color: var(--color-icon);
+  opacity: 0.7;
+}
+
+.details dd {
+  color: var(--color-icon-hover);
+}
+
+/* Seletor de tipo (passo inicial do modal) */
+.chooser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.chooserHint {
+  font-size: 13px;
+  color: var(--color-icon);
+  opacity: 0.8;
+}
+
+.chooserOptions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.chooserCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.chooserCard:hover {
+  border-color: var(--color-accent);
+  background: var(--color-hover);
+  transform: translateY(-2px);
+}
+
+.chooserEmoji {
+  font-size: 24px;
+}
+
+.chooserTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+.chooserDesc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-icon);
+  opacity: 0.75;
+}
