@@ -7,16 +7,63 @@
   gap: var(--space-4);
 }
 
-/* Vitrine do número mágico */
+/* Vitrine do número mágico.
+   margin-top: desce o card pra não colidir com o Header fixo (foto/tema/sair)
+   no topo-direito. (No futuro, esse espaçamento sobe pro layout global.) */
 .hero {
+  margin-top: 56px;
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
+}
+
+/* Lado esquerdo: rótulo + número grande (a estrela) */
+.heroMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Linha vertical separando o número do detalhamento */
+.divider {
+  align-self: stretch;
+  width: 1px;
+  background: var(--color-border);
+}
+
+/* Lado direito: a cascata em linhas menores e discretas */
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 220px;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: 13px;
+}
+
+.breakdownLabel {
+  color: var(--color-icon);
+}
+
+.breakdownValue {
+  color: var(--color-icon-hover);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Descontos (imposto e despesas): vermelho SUAVE — sinaliza subtração sem alarmar */
+.desconto {
+  color: rgba(239, 68, 68, 0.7);
 }
 
 .label {

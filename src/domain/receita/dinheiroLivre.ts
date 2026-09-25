@@ -19,12 +19,31 @@ type Args = {
   mes: string // "AAAA-MM"
 }
 
+// O detalhamento da cascata: os pedaços + o resultado final.
+// A tela usa os pedaços pra mostrar de onde vem o número.
+export type DetalheDinheiroLivre = {
+  recebido: number // Σ receitas do mês
+  imposto: number // Σ imposto reservado do mês
+  despesas: number // custo mensal das despesas fixas
+  livre: number // recebido − imposto − despesas
+}
+
 // RN08 — cascata do dinheiro livre do mês:
 // receitas do mês − imposto reservado do mês − custo das despesas fixas
-export function dinheiroLivreDoMes({ receitas, despesas, aliquota, mes }: Args): number {
+export function dinheiroLivreDoMes({
+  receitas,
+  despesas,
+  aliquota,
+  mes,
+}: Args): DetalheDinheiroLivre {
   const doMes = receitas.filter((r) => ehDoMes(r, mes))
-  const totalReceita = doMes.reduce((soma, r) => soma + r.valor, 0)
-  const totalImposto = doMes.reduce((soma, r) => soma + impostoDaReceita(r.valor, aliquota), 0)
+  const recebido = doMes.reduce((soma, r) => soma + r.valor, 0)
+  const imposto = doMes.reduce((soma, r) => soma + impostoDaReceita(r.valor, aliquota), 0)
   const totalDespesas = custoMensalTotal(despesas)
-  return totalReceita - totalImposto - totalDespesas
+  return {
+    recebido,
+    imposto,
+    despesas: totalDespesas,
+    livre: recebido - imposto - totalDespesas,
+  }
 }

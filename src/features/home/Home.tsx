@@ -24,8 +24,9 @@ export function Home() {
 
   const mesAtual = new Date().toISOString().slice(0, 7) // "AAAA-MM"
 
-  // valor DERIVADO: recalculado a cada render (não é guardado em estado)
-  const livre = dinheiroLivreDoMes({
+  // valor DERIVADO: recalculado a cada render (não é guardado em estado).
+  // Agora vem o detalhamento inteiro da cascata, não só o número final.
+  const detalhe = dinheiroLivreDoMes({
     receitas,
     despesas,
     aliquota: config.aliquotaImposto,
@@ -35,10 +36,39 @@ export function Home() {
   return (
     <section className={styles.page}>
       <div className={styles.hero}>
-        <span className={styles.label}>Dinheiro livre este mês</span>
-        <span className={`${styles.value} ${livre < 0 ? styles.negativo : ''}`}>
-          {formatarPreco(livre)}
-        </span>
+        <div className={styles.heroMain}>
+          <span className={styles.label}>Dinheiro livre este mês</span>
+          <span
+            className={`${styles.value} ${detalhe.livre < 0 ? styles.negativo : ''}`}
+          >
+            {formatarPreco(detalhe.livre)}
+          </span>
+        </div>
+
+        <div className={styles.divider} />
+
+        <div className={styles.breakdown}>
+          <div className={styles.breakdownRow}>
+            <span className={styles.breakdownLabel}>Recebido</span>
+            <span className={styles.breakdownValue}>
+              {formatarPreco(detalhe.recebido)}
+            </span>
+          </div>
+          <div className={styles.breakdownRow}>
+            <span className={styles.breakdownLabel}>
+              Imposto ({config.aliquotaImposto}%)
+            </span>
+            <span className={`${styles.breakdownValue} ${styles.desconto}`}>
+              − {formatarPreco(detalhe.imposto)}
+            </span>
+          </div>
+          <div className={styles.breakdownRow}>
+            <span className={styles.breakdownLabel}>Despesas fixas</span>
+            <span className={`${styles.breakdownValue} ${styles.desconto}`}>
+              − {formatarPreco(detalhe.despesas)}
+            </span>
+          </div>
+        </div>
       </div>
 
       <label className={styles.aliquota}>

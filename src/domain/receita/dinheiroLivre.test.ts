@@ -29,25 +29,28 @@ describe('dinheiroLivreDoMes', () => {
     { id: '3', valor: 9999, data: '2026-08-01', origem: 'mês anterior' }, // fora do mês
   ]
 
-  it('receitas do mês − imposto − despesas', () => {
+  it('detalha recebido, imposto, despesas e o livre do mês', () => {
     // receitas de 09/2026 = 8000; imposto 6% = 480; despesas = 2000
     // livre = 8000 - 480 - 2000 = 5520
-    const livre = dinheiroLivreDoMes({
+    const d = dinheiroLivreDoMes({
       receitas,
       despesas: [despesaMensal(1200), despesaMensal(800)],
       aliquota: 6,
       mes: '2026-09',
     })
-    expect(livre).toBe(5520)
+    expect(d.recebido).toBe(8000)
+    expect(d.imposto).toBe(480)
+    expect(d.despesas).toBe(2000)
+    expect(d.livre).toBe(5520)
   })
 
   it('mês sem receita dá o negativo do custo das despesas', () => {
-    const livre = dinheiroLivreDoMes({
+    const d = dinheiroLivreDoMes({
       receitas: [],
       despesas: [despesaMensal(500)],
       aliquota: 10,
       mes: '2026-09',
     })
-    expect(livre).toBe(-500)
+    expect(d.livre).toBe(-500)
   })
 })
