@@ -38,7 +38,7 @@
 /* Linha da saudação: título grande + aviso do sistema logo ao lado (colados) */
 .saudacao {
   display: flex;
-  align-items: flex-end; /* o aviso pequeno alinha pela base do título */
+  align-items: center; /* aviso centralizado no eixo do "Bem-vindo" */
   gap: var(--space-3);
   flex-wrap: wrap;
 }
