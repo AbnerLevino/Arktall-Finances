@@ -20,11 +20,11 @@ export function formatarDataCurta(iso: string): string {
   return `${dia} ${MESES_CURTOS[Number(mes) - 1]} ${ano}`
 }
 
-// Formata data + hora como "25/Setem./2026 - 12:15:50" (mês abreviado com inicial maiúscula)
+// Formata data + hora como "25/Set./2026 - 12:15:50" (mês abreviado em 3 letras, inicial maiúscula)
 export function formatarDataHora(d: Date): string {
   const dia = String(d.getDate()).padStart(2, '0')
   const mesLongo = d.toLocaleDateString('pt-BR', { month: 'long' })
-  const mes = mesLongo.charAt(0).toUpperCase() + mesLongo.slice(1, 5) + '.'
+  const mes = mesLongo.charAt(0).toUpperCase() + mesLongo.slice(1, 3) + '.'
   const ano = d.getFullYear()
   const hora = d.toLocaleTimeString('pt-BR', { hour12: false })
   return `${dia}/${mes}/${ano} - ${hora}`
