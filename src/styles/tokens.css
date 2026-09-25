@@ -31,7 +31,8 @@
     0 10px 30px -10px rgba(0, 0, 0, 0.15), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
 
   /* Tipografia */
-  --font-sans: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Instrument Sans Variable', system-ui, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
 }
 
 /* Tema CLARO — só as cores mudam; dourado continua sendo a marca */

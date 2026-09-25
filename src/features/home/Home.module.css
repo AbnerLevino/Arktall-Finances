@@ -7,20 +7,46 @@
   gap: var(--space-4);
 }
 
-/* Vitrine do número mágico.
-   margin-top: desce o card pra não colidir com o Header fixo (foto/tema/sair)
-   no topo-direito. (No futuro, esse espaçamento sobe pro layout global.) */
-.hero {
-  margin-top: 56px;
+/* Cabeçalho da página (topo-esquerdo) — equilibra os controles do Header
+   (perfil/tema/sair) fixos no topo-direito, e dá contexto do mês. */
+.pageHeader {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  min-height: 48px;
+  padding-right: 200px; /* reserva espaço pros controles fixos do Header */
+}
+
+.pageTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-icon-hover);
+  font-variant-numeric: tabular-nums; /* os dígitos do relógio não "pulam" */
+}
+
+/* Card genérico — os dois blocos usam a MESMA superfície (é isso que dá coesão) */
+.card {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
+}
+
+/* Seção de cima do card de dinheiro livre: número | divisória | cascata */
+.top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+/* Rodapé do card (a alíquota), separado por um fio */
+.cardFooter {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
 }
 
 /* Lado esquerdo: rótulo + número grande (a estrela) */
@@ -58,6 +84,7 @@
 
 .breakdownValue {
   color: var(--color-icon-hover);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -114,56 +141,88 @@
   border-color: var(--color-accent);
 }
 
-/* Seção "Receitas do mês" */
-.section {
+
+/* Título de um card (ex.: "Receitas do mês") */
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+/* Lista de lançamentos (estilo extrato) — altura "presa"; rola aqui dentro */
+.listWrap {
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 160, 170, 0.35) transparent;
+}
+
+.listWrap::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listWrap::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 170, 0.35);
+  border-radius: 999px;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Uma linha de receita */
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-3);
-}
-
-.sectionTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-icon-hover);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.table th {
-  text-align: left;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-  color: var(--color-icon);
-  padding: var(--space-3);
+  padding: var(--space-3) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
-.table td {
-  padding: var(--space-3);
-  font-size: 14px;
-  color: var(--color-icon-hover);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.table tbody tr:last-child td {
+.item:last-child {
   border-bottom: none;
 }
 
-/* alinhamento à direita — especificidade maior que ".table th/td" de propósito */
-.table .right {
-  text-align: right;
+/* Esquerda: origem em destaque + data discreta abaixo */
+.itemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.valorCell {
+.itemOrigem {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-icon-hover);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemData {
+  font-size: 12px;
+  color: var(--color-icon);
+  opacity: 0.75;
+}
+
+/* Direita: valor + lixeira (que só aparece no hover/foco da linha) */
+.itemDireita {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.itemValor {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-icon-hover);
   font-variant-numeric: tabular-nums;
 }
 
@@ -176,9 +235,16 @@
   color: var(--color-icon);
   border-radius: var(--radius-md);
   cursor: pointer;
+  opacity: 0;
   transition:
+    opacity 120ms ease,
     background-color 120ms ease,
     color 120ms ease;
+}
+
+.item:hover .remover,
+.remover:focus-visible {
+  opacity: 1;
 }
 
 .remover:hover {
@@ -186,15 +252,16 @@
   color: #ef4444;
 }
 
+.remover:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 .vazio {
-  padding: var(--space-4);
-  text-align: center;
+  padding: var(--space-3) 0;
   font-size: 13px;
   color: var(--color-icon);
   opacity: 0.85;
-  background: var(--color-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-lg);
 }
 
 /* Botão flutuante de nova receita */

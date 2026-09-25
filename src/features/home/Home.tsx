@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './Home.module.css'
 import { Icon } from '@/ui/Icon/Icon'
 import { useReceitas } from '@/domain/receita/useReceitas'
 import { useConfig } from '@/domain/config/useConfig'
 import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
-import { formatarPreco, formatarData } from '@/lib/format'
+import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
 
@@ -17,6 +17,12 @@ export function Home() {
   const { receitas, adicionar, remover } = useReceitas()
   const { config, setAliquota } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
+  // relógio ao vivo do cabeçalho (atualiza a cada segundo)
+  const [agora, setAgora] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setAgora(new Date()), 1000)
+    return () => clearInterval(id) // limpa o timer quando o componente sai da tela
+  }, [])
 
   // despesas fixas já cadastradas (leitura única, mesmo padrão do dashboard)
   const [despesas] = useState<Fatura[]>(() => {
@@ -42,79 +48,87 @@ export function Home() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.hero}>
-        <div className={styles.heroMain}>
-          <span className={styles.label}>Dinheiro livre este mês</span>
-          <span
-            className={`${styles.value} ${detalhe.livre < 0 ? styles.negativo : ''}`}
-          >
-            {formatarPreco(detalhe.livre)}
-          </span>
+      <header className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>{formatarDataHora(agora)}</h1>
+      </header>
+
+      {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
+      <div className={styles.card}>
+        <div className={styles.top}>
+          <div className={styles.heroMain}>
+            <span className={styles.label}>Dinheiro livre este mês</span>
+            <span
+              className={`${styles.value} ${detalhe.livre < 0 ? styles.negativo : ''}`}
+            >
+              {formatarPreco(detalhe.livre)}
+            </span>
+          </div>
+
+          <div className={styles.divider} />
+
+          <div className={styles.breakdown}>
+            <div className={styles.breakdownRow}>
+              <span className={styles.breakdownLabel}>Recebido</span>
+              <span className={styles.breakdownValue}>
+                {formatarPreco(detalhe.recebido)}
+              </span>
+            </div>
+            <div className={styles.breakdownRow}>
+              <span className={styles.breakdownLabel}>
+                Imposto ({config.aliquotaImposto}%)
+              </span>
+              <span className={`${styles.breakdownValue} ${styles.desconto}`}>
+                − {formatarPreco(detalhe.imposto)}
+              </span>
+            </div>
+            <div className={styles.breakdownRow}>
+              <span className={styles.breakdownLabel}>Despesas fixas</span>
+              <span className={`${styles.breakdownValue} ${styles.desconto}`}>
+                − {formatarPreco(detalhe.despesas)}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className={styles.divider} />
-
-        <div className={styles.breakdown}>
-          <div className={styles.breakdownRow}>
-            <span className={styles.breakdownLabel}>Recebido</span>
-            <span className={styles.breakdownValue}>
-              {formatarPreco(detalhe.recebido)}
-            </span>
-          </div>
-          <div className={styles.breakdownRow}>
-            <span className={styles.breakdownLabel}>
-              Imposto ({config.aliquotaImposto}%)
-            </span>
-            <span className={`${styles.breakdownValue} ${styles.desconto}`}>
-              − {formatarPreco(detalhe.imposto)}
-            </span>
-          </div>
-          <div className={styles.breakdownRow}>
-            <span className={styles.breakdownLabel}>Despesas fixas</span>
-            <span className={`${styles.breakdownValue} ${styles.desconto}`}>
-              − {formatarPreco(detalhe.despesas)}
-            </span>
-          </div>
+        <div className={styles.cardFooter}>
+          <label className={styles.aliquota}>
+            <span>Alíquota de imposto (%)</span>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={config.aliquotaImposto}
+              onChange={(e) => setAliquota(Number(e.target.value))}
+            />
+          </label>
         </div>
       </div>
 
-      <label className={styles.aliquota}>
-        <span>Alíquota de imposto (%)</span>
-        <input
-          type="number"
-          min="0"
-          max="100"
-          value={config.aliquotaImposto}
-          onChange={(e) => setAliquota(Number(e.target.value))}
-        />
-      </label>
-
-      <section className={styles.section}>
-        <span className={styles.sectionTitle}>Receitas do mês</span>
+      {/* Card 2 — Receitas do mês (lista) */}
+      <div className={styles.card}>
+        <span className={styles.cardTitle}>Receitas do mês</span>
 
         {receitasMes.length === 0 ? (
           <p className={styles.vazio}>
             Nenhuma receita cadastrada este mês. Use o botão + para adicionar.
           </p>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Origem</th>
-                <th className={styles.right}>Valor</th>
-                <th className={styles.right} aria-label="Ações"></th>
-              </tr>
-            </thead>
-            <tbody>
+          <div className={styles.listWrap}>
+            <ul className={styles.list}>
               {receitasMes.map((r) => (
-                <tr key={r.id}>
-                  <td>{formatarData(r.data)}</td>
-                  <td>{r.origem || '—'}</td>
-                  <td className={`${styles.right} ${styles.valorCell}`}>
-                    {formatarPreco(r.valor)}
-                  </td>
-                  <td className={styles.right}>
+                <li key={r.id} className={styles.item}>
+                  <div className={styles.itemInfo}>
+                    <span className={styles.itemOrigem}>
+                      {r.origem || 'Sem origem'}
+                    </span>
+                    <span className={styles.itemData}>
+                      {formatarDataCurta(r.data)}
+                    </span>
+                  </div>
+                  <div className={styles.itemDireita}>
+                    <span className={styles.itemValor}>
+                      + {formatarPreco(r.valor)}
+                    </span>
                     <button
                       type="button"
                       className={styles.remover}
@@ -123,13 +137,13 @@ export function Home() {
                     >
                       <Icon name="trash" size={15} />
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+          </div>
         )}
-      </section>
+      </div>
 
       <button
         type="button"
