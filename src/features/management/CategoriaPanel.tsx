@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import type { Categoria } from './categorias'
+import type { Categoria } from '@/domain/categoria/categorias'
 import styles from './CategoriaPanel.module.css'
 
 type Props = {

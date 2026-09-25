@@ -11,8 +11,8 @@ import {
   useXAxisScale,
   useYAxisScale,
 } from 'recharts'
-import { formatarPreco } from './format'
-import type { PontoSerie } from './calc'
+import { formatarPreco } from '@/lib/format'
+import type { PontoSerie } from '@/domain/fatura/calc'
 import styles from './EvolucaoChart.module.css'
 
 const OURO = '#d4af37'

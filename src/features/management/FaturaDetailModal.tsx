@@ -1,11 +1,11 @@
-import type { Fatura } from './Subscriptions'
-import { acharBanco } from './banks'
+import type { Fatura } from '@/domain/fatura/types'
+import { acharBanco } from '@/domain/banco/banks'
 import {
   formatarVencimento,
   formatarPreco,
   descreverPagamento,
-} from './format'
-import styles from './Modal.module.css'
+} from '@/lib/format'
+import styles from '@/ui/Modal/Modal.module.css'
 
 type Props = {
   fatura: Fatura

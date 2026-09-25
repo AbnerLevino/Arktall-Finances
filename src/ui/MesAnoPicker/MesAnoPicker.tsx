@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Select } from './Select'
+import { Select } from '@/ui/Select/Select'
 import styles from './MesAnoPicker.module.css'
 
 const MESES = [

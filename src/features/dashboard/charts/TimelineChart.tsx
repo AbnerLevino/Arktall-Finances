@@ -8,8 +8,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts'
-import { formatarPreco } from './format'
-import { formatarMesIdx, type FaixaTimeline } from './calc'
+import { formatarPreco } from '@/lib/format'
+import { formatarMesIdx, type FaixaTimeline } from '@/domain/fatura/calc'
 import styles from './EvolucaoChart.module.css'
 
 const CINZA = '#a1a1aa'

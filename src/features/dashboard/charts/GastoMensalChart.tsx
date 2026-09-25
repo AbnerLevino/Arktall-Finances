@@ -7,8 +7,8 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts'
-import { formatarPreco } from './format'
-import type { PontoMensal, EventoFatura } from './calc'
+import { formatarPreco } from '@/lib/format'
+import type { PontoMensal, EventoFatura } from '@/domain/fatura/calc'
 import styles from './EvolucaoChart.module.css'
 
 const CINZA = '#a1a1aa'

@@ -1,5 +1,5 @@
 import profileImg from '@/assets/profile.png'
-import { Icon } from '@/components/Icon/Icon'
+import { Icon } from '@/ui/Icon/Icon'
 import { useTema } from '@/hooks/useTema'
 import styles from './Header.module.css'
 

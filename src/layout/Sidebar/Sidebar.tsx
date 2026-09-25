@@ -1,4 +1,4 @@
-import { Icon, type IconName } from '@/components/Icon/Icon'
+import { Icon, type IconName } from '@/ui/Icon/Icon'
 import styles from './Sidebar.module.css'
 
 type NavItem = {

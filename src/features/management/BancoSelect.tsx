@@ -1,14 +1,14 @@
 import { useState } from 'react'
-import { Icon } from '@/components/Icon/Icon'
+import { Icon } from '@/ui/Icon/Icon'
 import {
   BANCOS,
   OUTROS_BANCOS,
   acharBanco,
   lerBancosAdicionados,
   salvarBancosAdicionados,
-} from './banks'
-import { useDropdownAnchor } from './useDropdownAnchor'
-import styles from './BancoSelect.module.css'
+} from '@/domain/banco/banks'
+import { useDropdownAnchor } from '@/ui/Select/useDropdownAnchor'
+import styles from '@/ui/Select/Select.module.css'
 
 type Props = {
   value: number | null

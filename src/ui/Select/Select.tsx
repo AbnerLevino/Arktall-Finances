@@ -1,5 +1,5 @@
 import { useDropdownAnchor } from './useDropdownAnchor'
-import styles from './BancoSelect.module.css'
+import styles from './Select.module.css'
 
 type Props = {
   value: string

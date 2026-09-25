@@ -1,4 +1,4 @@
-import type { Fatura } from './Subscriptions'
+import type { Fatura } from './types'
 
 /**
  * Custo mensal de UMA fatura, aplicando a regra de periodicidade:

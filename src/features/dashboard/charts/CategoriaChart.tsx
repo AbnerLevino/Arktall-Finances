@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
-import { formatarPreco } from './format'
+import { formatarPreco } from '@/lib/format'
 import styles from './CategoriaChart.module.css'
 
 export type FatiaGrafico = {

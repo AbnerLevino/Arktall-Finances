@@ -1,7 +1,7 @@
-import { Icon } from '@/components/Icon/Icon'
-import { rotuloCategoria, type Categoria } from './categorias'
-import { useDropdownAnchor } from './useDropdownAnchor'
-import styles from './BancoSelect.module.css'
+import { Icon } from '@/ui/Icon/Icon'
+import { rotuloCategoria, type Categoria } from '@/domain/categoria/categorias'
+import { useDropdownAnchor } from '@/ui/Select/useDropdownAnchor'
+import styles from '@/ui/Select/Select.module.css'
 
 type Props = {
   value: string // rótulo da categoria selecionada (emoji + nome)

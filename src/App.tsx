@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { BlurOverlay } from '@/layout/BlurOverlay/BlurOverlay'
 import { Header } from '@/layout/Header/Header'
 import { Sidebar } from '@/layout/Sidebar/Sidebar'
-import { Wallet } from '@/pages/Wallet/Wallet'
-import { Management } from '@/pages/Management/Management'
+import { Wallet } from '@/features/dashboard/Wallet'
+import { Management } from '@/features/management/Management'
 import styles from './App.module.css'
 
 export default function App() {

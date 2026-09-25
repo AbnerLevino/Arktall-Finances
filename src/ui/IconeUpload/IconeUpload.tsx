@@ -1,5 +1,5 @@
 import { useRef, type ChangeEvent } from 'react'
-import { processarIcone } from './image'
+import { processarIcone } from '@/lib/image'
 import styles from './IconeUpload.module.css'
 
 type Props = {

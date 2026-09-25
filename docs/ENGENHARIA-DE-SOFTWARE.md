@@ -228,20 +228,28 @@ Aplicação **frontend-only** (SPA). Não há backend, banco de dados nem autent
 A lógica de domínio hoje em `calc.ts` migra para os *Services* do backend; o front vira consumidor da API.
 
 ### 6.5 Organização de pastas
+Organização **por contexto/funcionalidade** (não por camada técnica). Regra de dependência: `features/` pode depender de `ui/`, `domain/` e `lib/`; `ui/` e `domain/` **nunca** dependem de `features/`.
+
 ```
 src/
 ├── main.tsx              # ponto de entrada
 ├── App.tsx               # componente raiz + roteamento por estado
-├── components/Icon/      # sistema de ícones SVG
+├── domain/               # regra de negócio + tipos + persistência (o "backend" do front)
+│   ├── fatura/           #   types.ts (entidade Fatura) + calc.ts
+│   ├── categoria/        #   Categoria + hook useCategorias
+│   └── banco/            #   dados dos bancos + acharBanco
+├── lib/                  # utilitários puros (format.ts, image.ts)
+├── ui/                   # componentes GENÉRICOS reutilizáveis
+│   ├── Icon/  Select/  Modal/  MesAnoPicker/  IconeUpload/
+├── features/             # as telas, por contexto
+│   ├── dashboard/        #   Wallet + Subscriptions + charts/
+│   └── management/       #   Management + FaturaFormModal + selects
 ├── layout/               # Header, Sidebar, BlurOverlay
-├── pages/
-│   ├── Wallet/           # dashboard + toda a lógica de domínio e gráficos
-│   └── Management/       # listagem e CRUD das contas
-├── hooks/                # hooks reutilizáveis (ex.: useTema)
+├── hooks/                # hooks transversais (ex.: useTema)
 └── styles/               # tokens.css + global.css
 ```
 
-> **Observação de arquitetura:** a pasta `pages/Wallet/` concentra muita coisa (dashboard, modelo `Fatura`, cálculos, gráficos, modais). À medida que o projeto crescer, vale extrair o **domínio** (tipos + `calc.ts` + `categorias.ts`) para uma pasta própria (ex.: `src/domain/`), separando "regra de negócio" de "tela".
+> **Nota:** durante a reorganização foram identificados arquivos sem uso (código morto): `features/dashboard/Bills.tsx`, `features/dashboard/charts/EvolucaoChart.tsx`, `features/dashboard/charts/GastoMensalChart.tsx` e `features/management/FaturaDetailModal.tsx`. Foram mantidos, mas são candidatos a remoção.
 
 ---
 

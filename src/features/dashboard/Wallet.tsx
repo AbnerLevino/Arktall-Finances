@@ -1,6 +1,6 @@
 import styles from './Wallet.module.css'
 import { Subscriptions } from './Subscriptions'
-import { useCategorias } from './categorias'
+import { useCategorias } from '@/domain/categoria/categorias'
 
 // Página única de dashboard (visão geral: KPIs + gráficos).
 // As abas Wallet | Bills foram removidas; a gestão dos cards virou a

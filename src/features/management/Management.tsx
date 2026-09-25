@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { Icon } from '@/components/Icon/Icon'
+import { Icon } from '@/ui/Icon/Icon'
 import styles from './Management.module.css'
 import {
   formatarVencimento,
   formatarPreco,
   descreverPagamento,
-} from '@/pages/Wallet/format'
-import { acharBanco } from '@/pages/Wallet/banks'
-import { useCategorias, rotuloCategoria } from '@/pages/Wallet/categorias'
-import type { Fatura } from '@/pages/Wallet/Subscriptions'
-import { FaturaFormModal } from '@/pages/Wallet/FaturaFormModal'
+} from '@/lib/format'
+import { acharBanco } from '@/domain/banco/banks'
+import { useCategorias, rotuloCategoria } from '@/domain/categoria/categorias'
+import type { Fatura } from '@/domain/fatura/types'
+import { FaturaFormModal } from './FaturaFormModal'
 
 // Cor neutra para o grupo "Sem categoria"
 const COR_SEM_CATEGORIA = '#6b7280'

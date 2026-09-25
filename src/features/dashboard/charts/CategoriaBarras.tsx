@@ -1,4 +1,4 @@
-import { formatarPreco } from './format'
+import { formatarPreco } from '@/lib/format'
 import type { FatiaGrafico } from './CategoriaChart'
 import styles from './CategoriaBarras.module.css'
 
