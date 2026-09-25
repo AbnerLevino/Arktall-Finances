@@ -9,9 +9,17 @@
 
 /* Cabeçalho da página (topo-esquerdo) — equilibra os controles do Header
    (perfil/tema/sair) fixos no topo-direito, e dá contexto do mês. */
+/* Introdução: data + saudação juntinhos, com respiro maior antes dos cards */
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
 .pageHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* data encosta na saudação (ficam próximas) */
   min-height: 48px;
   padding-right: 200px; /* reserva espaço pros controles fixos do Header */
 }
@@ -45,42 +53,46 @@
   text-wrap: balance;
 }
 
-/* Avisos calculados (a "voz" do sistema; futura camada de IA) */
-.insights {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* Aviso rotativo (a "voz" do sistema; futura camada de IA):
+   uma linha só, troca a cada 20s com um slide de baixo pra cima. */
+.insightRotativo {
+  height: 20px;
+  overflow: hidden; /* recorta o slide pra parecer que a linha "sobe" */
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  max-width: 380px;
+  align-items: center;
+  max-width: 420px;
 }
 
 .insight {
-  display: flex;
-  gap: var(--space-2);
+  max-width: 100%;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 20px;
   color: var(--color-icon);
-}
-
-/* bolinha marcadora antes de cada aviso */
-.insight::before {
-  content: '';
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  margin-top: 6px;
-  border-radius: 50%;
-  background: var(--color-accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: subirInsight 450ms ease;
 }
 
 .insight[data-tom='alerta'] {
   color: rgba(239, 68, 68, 0.85);
 }
 
-.insight[data-tom='alerta']::before {
-  background: #ef4444;
+@keyframes subirInsight {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insight {
+    animation: none;
+  }
 }
 
 /* Card genérico — os dois blocos usam a MESMA superfície (é isso que dá coesão) */

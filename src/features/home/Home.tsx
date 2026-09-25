@@ -24,6 +24,8 @@ export function Home() {
     const id = setInterval(() => setAgora(new Date()), 1000)
     return () => clearInterval(id) // limpa o timer quando o componente sai da tela
   }, [])
+  // qual aviso (insight) está sendo exibido agora — roda a cada 20s
+  const [insightIdx, setInsightIdx] = useState(0)
 
   // despesas fixas já cadastradas (leitura única, mesmo padrão do dashboard)
   const [despesas] = useState<Fatura[]>(() => {
@@ -56,24 +58,42 @@ export function Home() {
     despesasList: despesas,
   })
 
+  // troca o aviso exibido a cada 20s (só faz sentido se há mais de um)
+  useEffect(() => {
+    if (insights.length <= 1) return
+    const id = setInterval(() => {
+      setInsightIdx((i) => (i + 1) % insights.length)
+    }, 20000)
+    return () => clearInterval(id)
+  }, [insights.length])
+
+  // o aviso atual (com guarda caso a lista encolha)
+  const insightAtual =
+    insights.length > 0 ? insights[insightIdx % insights.length] : null
+
   return (
     <section className={styles.page}>
-      <header className={styles.pageHeader}>
-        <span className={styles.pageTitle}>{formatarDataHora(agora)}</span>
-      </header>
+      <div className={styles.intro}>
+        <header className={styles.pageHeader}>
+          <span className={styles.pageTitle}>{formatarDataHora(agora)}</span>
+        </header>
 
-      <div className={styles.saudacao}>
-        <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
+        <div className={styles.saudacao}>
+          <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
 
-        {insights.length > 0 && (
-          <ul className={styles.insights}>
-            {insights.map((i) => (
-              <li key={i.id} className={styles.insight} data-tom={i.tom}>
-                {i.texto}
-              </li>
-            ))}
-          </ul>
-        )}
+          {insightAtual && (
+            <div className={styles.insightRotativo}>
+              {/* key força o remount ao trocar → replay da animação de subida */}
+              <span
+                key={insightAtual.id}
+                className={styles.insight}
+                data-tom={insightAtual.tom}
+              >
+                {insightAtual.texto}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
