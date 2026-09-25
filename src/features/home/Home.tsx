@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from './Home.module.css'
 import { Icon } from '@/ui/Icon/Icon'
 import { useReceitas } from '@/domain/receita/useReceitas'
@@ -6,12 +6,15 @@ import { useConfig } from '@/domain/config/useConfig'
 import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
+import { custoMensal } from '@/domain/fatura/calc'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import type { Fatura } from '@/domain/fatura/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
 
 // "Gaveta" das despesas — as mesmas que o dashboard e o Management usam
 const CHAVE_FATURAS = 'arktall:faturas'
+// Nome do usuário — fixo por ora (sem backend); futuramente vem do perfil/login.
+const NOME_USUARIO = 'Abner Levino'
 
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
@@ -26,6 +29,19 @@ export function Home() {
   }, [])
   // qual aviso (insight) está sendo exibido agora — roda a cada 20s
   const [insightIdx, setInsightIdx] = useState(0)
+  // pop-up de detalhamento das despesas fixas + ref para fechar ao clicar fora
+  const [despesasAbertas, setDespesasAbertas] = useState(false)
+  const despesasRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!despesasAbertas) return
+    function aoClicarFora(e: MouseEvent) {
+      if (despesasRef.current && !despesasRef.current.contains(e.target as Node)) {
+        setDespesasAbertas(false)
+      }
+    }
+    document.addEventListener('mousedown', aoClicarFora)
+    return () => document.removeEventListener('mousedown', aoClicarFora)
+  }, [despesasAbertas])
 
   // despesas fixas já cadastradas (leitura única, mesmo padrão do dashboard)
   const [despesas] = useState<Fatura[]>(() => {
@@ -71,6 +87,21 @@ export function Home() {
   const insightAtual =
     insights.length > 0 ? insights[insightIdx % insights.length] : null
 
+  // saudação por horário (usa o relógio que já roda de segundo em segundo)
+  const hora = agora.getHours()
+  const saudacao =
+    hora >= 5 && hora < 12
+      ? 'Bom dia'
+      : hora >= 12 && hora < 18
+        ? 'Boa tarde'
+        : 'Boa noite'
+
+  // explicação da alíquota — dinâmica, com os números reais do mês
+  const textoAliquota =
+    detalhe.recebido > 0
+      ? `${config.aliquotaImposto}% da sua receita (${formatarPreco(detalhe.recebido)}) = ${formatarPreco(detalhe.imposto)} reservados este mês.`
+      : 'Percentual reservado sobre toda receita recebida no mês.'
+
   return (
     <section className={styles.page}>
       <div className={styles.intro}>
@@ -79,7 +110,9 @@ export function Home() {
         </header>
 
         <div className={styles.saudacao}>
-          <h1 className={styles.welcome}>Bem-vindo, Grande Empreendedor!</h1>
+          <h1 className={styles.welcome}>
+            {saudacao}, <span className={styles.nome}>{NOME_USUARIO}</span>!
+          </h1>
 
           {insightAtual && (
             <div className={styles.insightRotativo}>
@@ -126,11 +159,52 @@ export function Home() {
                 − {formatarPreco(detalhe.imposto)}
               </span>
             </div>
-            <div className={styles.breakdownRow}>
-              <span className={styles.breakdownLabel}>Despesas fixas</span>
-              <span className={`${styles.breakdownValue} ${styles.desconto}`}>
-                − {formatarPreco(detalhe.despesas)}
-              </span>
+            <div className={styles.despesasWrap} ref={despesasRef}>
+              <button
+                type="button"
+                className={styles.despesasBtn}
+                aria-expanded={despesasAbertas}
+                onClick={() => setDespesasAbertas((v) => !v)}
+              >
+                <span className={styles.breakdownLabel}>
+                  <span className={styles.linkPontilhado}>Despesas fixas</span>
+                </span>
+                <span className={`${styles.breakdownValue} ${styles.desconto}`}>
+                  − {formatarPreco(detalhe.despesas)}
+                </span>
+              </button>
+
+              {despesasAbertas && (
+                <div
+                  className={styles.despesasPopover}
+                  role="dialog"
+                  aria-label="Detalhe das despesas fixas"
+                >
+                  <span className={styles.popoverTitulo}>Despesas fixas</span>
+
+                  {despesas.length === 0 ? (
+                    <p className={styles.popoverVazio}>
+                      Nenhuma despesa cadastrada.
+                    </p>
+                  ) : (
+                    <ul className={styles.popoverLista}>
+                      {despesas.map((f) => (
+                        <li key={f.id} className={styles.popoverItem}>
+                          <span className={styles.popoverNome}>{f.nome}</span>
+                          <span className={styles.popoverValor}>
+                            {formatarPreco(custoMensal(f))}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div className={styles.popoverTotal}>
+                    <span>Total</span>
+                    <span>{formatarPreco(detalhe.despesas)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -146,6 +220,7 @@ export function Home() {
               onChange={(e) => setAliquota(Number(e.target.value))}
             />
           </label>
+          <span className={styles.aliquotaHelp}>{textoAliquota}</span>
         </div>
       </div>
 
