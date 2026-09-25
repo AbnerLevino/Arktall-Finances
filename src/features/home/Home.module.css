@@ -16,10 +16,14 @@
   padding-right: 200px; /* reserva espaço pros controles fixos do Header */
 }
 
+/* Mesmo estilo do rótulo "Dinheiro livre este mês" (.label): pequeno,
+   maiúsculas, espaçado e discreto — um timestamp elegante, não um título forte. */
 .pageTitle {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--color-icon-hover);
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-icon);
   font-variant-numeric: tabular-nums; /* os dígitos do relógio não "pulam" */
 }
 
