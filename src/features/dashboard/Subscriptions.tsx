@@ -1,17 +1,13 @@
-import { useState } from 'react'
 import styles from './Wallet.module.css'
 import { formatarPreco } from '@/lib/format'
 import { custoMensalTotal, timelineAssinaturas } from '@/domain/fatura/calc'
 import { rotuloCategoria, type Categoria } from '@/domain/categoria/categorias'
-import type { Fatura } from '@/domain/fatura/types'
+import { useFaturas } from '@/domain/fatura/faturasStore'
 import { CategoriaBarras } from './charts/CategoriaBarras'
 import { TimelineChart } from './charts/TimelineChart'
 
 // Cor neutra para o grupo "Sem categoria"
 const COR_SEM_CATEGORIA = '#6b7280'
-
-// "Gaveta" própria das assinaturas no localStorage
-const CHAVE_STORAGE = 'arktall:faturas'
 
 type Props = {
   categorias: Categoria[]
@@ -20,11 +16,8 @@ type Props = {
 // Dashboard: só a VISÃO (KPIs + gráficos). Os cards e o cadastro moraram
 // aqui antes — agora vivem na página Management.
 export function Subscriptions({ categorias }: Props) {
-  // Lê do localStorage uma única vez, na montagem (lazy initializer)
-  const [faturas] = useState<Fatura[]>(() => {
-    const salvo = localStorage.getItem(CHAVE_STORAGE)
-    return salvo ? JSON.parse(salvo) : []
-  })
+  // Fonte única compartilhada (Context)
+  const { faturas } = useFaturas()
 
   // KPI: soma do custo mensal (anual entra como preço/12)
   const totalMensal = custoMensalTotal(faturas)

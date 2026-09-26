@@ -5,6 +5,7 @@ import { Sidebar } from '@/layout/Sidebar/Sidebar'
 import { Home } from '@/features/home/Home'
 import { Wallet } from '@/features/dashboard/Wallet'
 import { Management } from '@/features/management/Management'
+import { FaturasProvider } from '@/domain/fatura/FaturasContext'
 import styles from './App.module.css'
 
 export default function App() {
@@ -12,11 +13,11 @@ export default function App() {
   const [activeId, setActiveId] = useState('home')
 
   return (
-    <>
+    <FaturasProvider>
       <Header />
       <BlurOverlay isVisible={sidebarHovered}/>
       <div className={styles.app}>
-      <Sidebar 
+      <Sidebar
         activeId={activeId}
         onSelect={setActiveId}
         onHoverChange={setSidebarHovered}
@@ -27,6 +28,6 @@ export default function App() {
       {activeId==='management' && <Management />}
       </main>
       </div>
-    </>
+    </FaturasProvider>
   )
 }

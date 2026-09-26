@@ -9,36 +9,23 @@ import {
 import { acharBanco } from '@/domain/banco/banks'
 import { useCategorias, rotuloCategoria } from '@/domain/categoria/categorias'
 import type { Fatura } from '@/domain/fatura/types'
+import { useFaturas } from '@/domain/fatura/faturasStore'
 import { FaturaFormModal } from './FaturaFormModal'
 
 // Cor neutra para o grupo "Sem categoria"
 const COR_SEM_CATEGORIA = '#6b7280'
 
-// Mesma "gaveta" das assinaturas — por ora Management só LÊ os dados.
-// (a ação dos botões editar/excluir liga no próximo passo, junto com o
-// FAB de cadastro)
-const CHAVE_STORAGE = 'arktall:faturas'
-
 // Página de gestão: cada conta é uma linha full-width com identidade,
 // metadados, preço e ações. Separada do dashboard (gráficos).
 export function Management() {
   const { categorias, adicionar } = useCategorias()
-
-  const [faturas, setFaturas] = useState<Fatura[]>(() => {
-    const salvo = localStorage.getItem(CHAVE_STORAGE)
-    return salvo ? JSON.parse(salvo) : []
-  })
+  // Fonte única compartilhada das faturas (Context)
+  const { faturas, salvar } = useFaturas()
 
   // Controla a abertura do modal de cadastro (acionado pelo FAB)
   const [modalAberto, setModalAberto] = useState(false)
   // Fatura em edição; null = modo criação (FAB)
   const [faturaEditando, setFaturaEditando] = useState<Fatura | null>(null)
-
-  // Fonte da verdade: grava no estado e no localStorage numa operação só
-  const persistir = (novas: Fatura[]) => {
-    setFaturas(novas)
-    localStorage.setItem(CHAVE_STORAGE, JSON.stringify(novas))
-  }
 
   // Abre o modal já preenchido com a fatura escolhida
   const abrirEdicao = (f: Fatura) => {
@@ -52,12 +39,9 @@ export function Management() {
     setFaturaEditando(null)
   }
 
-  // Salvar: se o id já existe, SUBSTITUI; senão, adiciona no fim
+  // Salvar: upsert no Context (substitui se o id existe, senão adiciona)
   const salvarFatura = (nova: Fatura) => {
-    const existe = faturas.some((f) => f.id === nova.id)
-    persistir(
-      existe ? faturas.map((f) => (f.id === nova.id ? nova : f)) : [...faturas, nova],
-    )
+    salvar(nova)
     fecharModal()
   }
 

@@ -9,11 +9,9 @@ import { gerarInsights } from '@/domain/insights/insights'
 import { despesasPorCategoria } from '@/domain/fatura/calc'
 import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
-import type { Fatura } from '@/domain/fatura/types'
+import { useFaturas } from '@/domain/fatura/faturasStore'
 import { ReceitaFormModal } from './ReceitaFormModal'
 
-// "Gaveta" das despesas — as mesmas que o dashboard e o Management usam
-const CHAVE_FATURAS = 'arktall:faturas'
 // Nome do usuário — fixo por ora (sem backend); futuramente vem do perfil/login.
 const NOME_USUARIO = 'Abner Levino'
 
@@ -51,11 +49,8 @@ export function Home() {
     return () => document.removeEventListener('mousedown', aoClicarFora)
   }, [despesasAbertas])
 
-  // despesas fixas já cadastradas (leitura única, mesmo padrão do dashboard)
-  const [despesas] = useState<Fatura[]>(() => {
-    const salvo = localStorage.getItem(CHAVE_FATURAS)
-    return salvo ? JSON.parse(salvo) : []
-  })
+  // despesas fixas — fonte única compartilhada (Context)
+  const { faturas: despesas } = useFaturas()
 
   // valor DERIVADO: recalculado a cada render (não é guardado em estado).
   // Segue o MÊS SELECIONADO — muda quando as setas navegam.
