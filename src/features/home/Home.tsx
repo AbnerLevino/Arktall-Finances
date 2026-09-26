@@ -126,22 +126,32 @@ export function Home() {
           <h1 className={styles.welcome}>
             {saudacao}, <span className={styles.nome}>{NOME_USUARIO}</span>!
           </h1>
-        </div>
 
-        {/* Avisos CRÍTICOS — fixos e destacados (perda/risco): peso de verdade */}
-        {criticos.length > 0 && (
-          <div className={styles.avisos}>
-            {criticos.map((c) => (
-              <div key={c.id} className={styles.avisoCritico} role="alert">
-                <span className={styles.avisoValor}>{c.valor}</span>
-                <span className={styles.avisoTexto}>
-                  {c.rotulo}
-                  {c.detalhe ? ` — ${c.detalhe}` : ''}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+          {/* Avisos CRÍTICOS — na frente da saudação, com peso de alerta */}
+          {criticos.length > 0 && (
+            <div className={styles.avisos}>
+              {criticos.map((c) => (
+                <div key={c.id} className={styles.avisoCritico} role="alert">
+                  <span className={styles.avisoValor}>{c.valor}</span>
+                  <span className={styles.avisoTexto}>
+                    {c.rotulo}
+                    {c.detalhe ? ` — ${c.detalhe}` : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Criar receita — dourado, à direita na linha do bem-vindo */}
+          <button
+            type="button"
+            className={styles.criarReceita}
+            onClick={() => setModalAberto(true)}
+          >
+            <Icon name="plus" size={18} />
+            Criar Receita
+          </button>
+        </div>
       </div>
 
       {/* Card 1 — Dinheiro livre (KPI + cascata + alíquota) */}
@@ -232,7 +242,7 @@ export function Home() {
             <div className={styles.despesasWrap} ref={despesasRef}>
               <button
                 type="button"
-                className={styles.despesasBtn}
+                className={`${styles.breakdownRow} ${styles.despesasBtn}`}
                 aria-expanded={despesasAbertas}
                 onClick={() => setDespesasAbertas((v) => !v)}
               >
@@ -354,15 +364,6 @@ export function Home() {
           </div>
         )}
       </div>
-
-      <button
-        type="button"
-        className={styles.fab}
-        onClick={() => setModalAberto(true)}
-        aria-label="Nova receita"
-      >
-        +
-      </button>
 
       {modalAberto && (
         <ReceitaFormModal

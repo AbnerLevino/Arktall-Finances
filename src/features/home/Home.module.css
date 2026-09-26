@@ -62,8 +62,9 @@
 .avisos {
   display: flex;
   flex-direction: column;
+  align-items: flex-start; /* cada tarja ocupa só a largura do seu texto */
   gap: var(--space-2);
-  max-width: 520px;
+  max-width: 480px; /* teto pra textos longos não virarem uma linha gigante */
 }
 
 .avisoCritico {
@@ -294,13 +295,15 @@
 
 .breakdownRow {
   display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
+  justify-content: flex-start; /* valores começam da esquerda, alinhados */
+  gap: var(--space-2);
   font-size: 13px;
 }
 
 .breakdownLabel {
   color: var(--color-icon);
+  width: 132px; /* largura fixa: alinha todos os valores numa mesma coluna */
+  flex-shrink: 0;
 }
 
 .breakdownValue {
@@ -319,19 +322,18 @@
   position: relative;
 }
 
+/* Só o reset visual do botão — o LAYOUT vem da classe .breakdownRow, então
+   a linha fica byte a byte idêntica às de Recebido/Imposto (mesmo eixo). */
 .despesasBtn {
-  display: flex;
+  appearance: none;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
   width: 100%;
-  padding: 2px 4px;
-  margin: -2px -4px; /* compensa o padding pra alinhar com as outras linhas */
-  font-size: 13px;
-  font-family: inherit;
+  padding: 0;
   border: none;
   background: transparent;
-  border-radius: var(--radius-md);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
   cursor: pointer;
   transition: background-color 120ms ease;
 }
@@ -642,24 +644,33 @@
   opacity: 0.85;
 }
 
-/* Botão flutuante de nova receita */
-.fab {
-  position: fixed;
-  right: var(--space-4);
-  bottom: var(--space-4);
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  border: none;
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-  font-size: 28px;
-  line-height: 1;
+/* Botão "Criar Receita" — só contorno dourado (sem fundo), pro contraste.
+   Ao passar o mouse, ganha um leve preenchimento dourado. */
+.criarReceita {
+  margin-left: auto; /* joga o botão pro fim da linha da saudação */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px var(--space-3);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
-  box-shadow: var(--shadow-panel);
-  transition: filter 140ms ease;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
 }
 
-.fab:hover {
-  filter: brightness(1.08);
+.criarReceita:hover {
+  background: var(--color-accent-soft);
+}
+
+.criarReceita:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
