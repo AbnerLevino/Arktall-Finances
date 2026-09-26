@@ -10,20 +10,21 @@ export type FatiaGrafico = {
 
 type Props = {
   data: FatiaGrafico[]
+  titulo?: string
 }
 
-// Ranking de gasto por categoria: nome + barra de proporção + % + valor.
-// Substitui a rosca — mesma informação, mais legível.
-export function CategoriaBarras({ data }: Props) {
+// Ranking horizontal genérico: rótulo + barra de proporção + % + valor.
+// Usado tanto pra "gasto por categoria" quanto pra "de onde vem a renda".
+export function CategoriaBarras({ data, titulo = 'Gasto por Categoria' }: Props) {
   const total = data.reduce((soma, d) => soma + d.value, 0)
   if (total === 0) return null // nada pra mostrar
 
-  // Do maior pro menor gasto — vira um ranking
+  // Do maior pro menor — vira um ranking
   const ordenado = [...data].sort((a, b) => b.value - a.value)
 
   return (
     <div className={styles.wrap}>
-      <span className={styles.title}>Gasto por Categoria</span>
+      <span className={styles.title}>{titulo}</span>
 
       <ul className={styles.list}>
         {ordenado.map((d) => {

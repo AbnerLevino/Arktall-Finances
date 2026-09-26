@@ -9,9 +9,9 @@ type NavItem = {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'home', label: 'Home', displayLabel: 'Home', icon: 'home' },
-  { id: 'wallet', label: 'Wallet', displayLabel: 'Wallet', icon: 'wallet' },
-  { id: 'management', label: 'Management', displayLabel: 'Management', icon: 'invoice' },
+  { id: 'home', label: 'Início', displayLabel: 'Início', icon: 'home' },
+  { id: 'wallet', label: 'Painel', displayLabel: 'Painel', icon: 'wallet' },
+  { id: 'management', label: 'Contas', displayLabel: 'Contas', icon: 'invoice' },
 ]
 
 type SidebarProps = {
