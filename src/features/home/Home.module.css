@@ -606,6 +606,8 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* botões de ação da linha (editar/excluir) — só aparecem no hover/foco */
+.editar,
 .remover {
   display: inline-grid;
   place-items: center;
@@ -622,9 +624,21 @@
     color 120ms ease;
 }
 
+.item:hover .editar,
 .item:hover .remover,
+.editar:focus-visible,
 .remover:focus-visible {
   opacity: 1;
+}
+
+.editar:hover {
+  background: var(--color-hover);
+  color: var(--color-icon-hover);
+}
+
+.editar:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .remover:hover {

@@ -20,7 +20,14 @@ const COR_SEM_CATEGORIA = '#6b7280'
 export function Management() {
   const { categorias, adicionar } = useCategorias()
   // Fonte única compartilhada das faturas (Context)
-  const { faturas, salvar } = useFaturas()
+  const { faturas, salvar, remover } = useFaturas()
+
+  // Exclui uma conta, pedindo confirmação (ação destrutiva)
+  const excluirFatura = (f: Fatura) => {
+    if (window.confirm(`Excluir "${f.nome}"? Essa ação não pode ser desfeita.`)) {
+      remover(f.id)
+    }
+  }
 
   // Controla a abertura do modal de cadastro (acionado pelo FAB)
   const [modalAberto, setModalAberto] = useState(false)
@@ -160,6 +167,7 @@ export function Management() {
               type="button"
               className={`${styles.action} ${styles.actionDanger}`}
               aria-label={`Excluir ${f.nome}`}
+              onClick={() => excluirFatura(f)}
             >
               <Icon name="trash" size={15} />
             </button>

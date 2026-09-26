@@ -3,22 +3,24 @@ import type { Receita } from '@/domain/receita/types'
 import styles from '@/ui/Modal/Modal.module.css'
 
 type Props = {
+  receita?: Receita // se vier, o modal abre em modo EDIÇÃO (pré-preenchido)
   onClose: () => void
   onSave: (r: Receita) => void
 }
 
-// Formulário controlado de nova receita (3 campos do MVP).
-export function ReceitaFormModal({ onClose, onSave }: Props) {
-  // cada campo é um estado; o input reflete o estado (input controlado)
-  const [valor, setValor] = useState('')
-  const [data, setData] = useState('')
-  const [origem, setOrigem] = useState('')
+// Formulário controlado de receita (3 campos do MVP). Cria ou edita.
+export function ReceitaFormModal({ receita, onClose, onSave }: Props) {
+  const editando = Boolean(receita)
+  // cada campo é um estado; começa vazio (criar) ou com o valor atual (editar)
+  const [valor, setValor] = useState(receita ? String(receita.valor) : '')
+  const [data, setData] = useState(receita?.data ?? '')
+  const [origem, setOrigem] = useState(receita?.origem ?? '')
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault() // evita o reload padrão do <form>
     if (!valor || !data) return // validação mínima: valor e data são obrigatórios
     onSave({
-      id: crypto.randomUUID(),
+      id: receita?.id ?? crypto.randomUUID(), // na edição mantém o id
       valor: Number(valor), // input devolve string; convertemos pra número
       data,
       origem: origem.trim(),
@@ -30,7 +32,7 @@ export function ReceitaFormModal({ onClose, onSave }: Props) {
     <div className={styles.overlay}>
       <div className={styles.dialog}>
         <div className={styles.dialogHeader}>
-          <h2>Nova receita</h2>
+          <h2>{editando ? 'Editar receita' : 'Nova receita'}</h2>
           <button
             type="button"
             className={styles.close}

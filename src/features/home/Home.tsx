@@ -10,6 +10,7 @@ import { despesasPorCategoria } from '@/domain/fatura/calc'
 import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import { useFaturas } from '@/domain/fatura/faturasStore'
+import type { Receita } from '@/domain/receita/types'
 import { ReceitaFormModal } from './ReceitaFormModal'
 
 // Nome do usuário — fixo por ora (sem backend); futuramente vem do perfil/login.
@@ -17,9 +18,11 @@ const NOME_USUARIO = 'Abner Levino'
 
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
-  const { receitas, adicionar, remover } = useReceitas()
+  const { receitas, adicionar, editar, remover } = useReceitas()
   const { config, setAliquota } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
+  // receita em edição; null = modo criação
+  const [receitaEditando, setReceitaEditando] = useState<Receita | null>(null)
   // relógio ao vivo do cabeçalho (mostra o "agora", atualiza a cada segundo)
   const [agora, setAgora] = useState(() => new Date())
   useEffect(() => {
@@ -141,7 +144,10 @@ export function Home() {
           <button
             type="button"
             className={styles.criarReceita}
-            onClick={() => setModalAberto(true)}
+            onClick={() => {
+              setReceitaEditando(null)
+              setModalAberto(true)
+            }}
           >
             <Icon name="plus" size={18} />
             Criar Receita
@@ -346,6 +352,17 @@ export function Home() {
                     </span>
                     <button
                       type="button"
+                      className={styles.editar}
+                      onClick={() => {
+                        setReceitaEditando(r)
+                        setModalAberto(true)
+                      }}
+                      aria-label={`Editar receita de ${r.origem || 'origem não informada'}`}
+                    >
+                      <Icon name="edit" size={15} />
+                    </button>
+                    <button
+                      type="button"
                       className={styles.remover}
                       onClick={() => remover(r.id)}
                       aria-label={`Excluir receita de ${r.origem || 'origem não informada'}`}
@@ -362,8 +379,12 @@ export function Home() {
 
       {modalAberto && (
         <ReceitaFormModal
-          onClose={() => setModalAberto(false)}
-          onSave={adicionar}
+          receita={receitaEditando ?? undefined}
+          onClose={() => {
+            setModalAberto(false)
+            setReceitaEditando(null)
+          }}
+          onSave={(r) => (receitaEditando ? editar(r) : adicionar(r))}
         />
       )}
     </section>
