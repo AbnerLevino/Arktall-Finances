@@ -1,6 +1,12 @@
 import { formatarPreco } from '@/lib/format'
-import type { FatiaGrafico } from './CategoriaChart'
 import styles from './CategoriaBarras.module.css'
+
+// Uma fatia do gráfico: categoria (label), valor mensal e cor.
+export type FatiaGrafico = {
+  label: string
+  value: number
+  cor: string
+}
 
 type Props = {
   data: FatiaGrafico[]
