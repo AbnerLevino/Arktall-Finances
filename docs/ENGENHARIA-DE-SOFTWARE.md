@@ -141,11 +141,56 @@ Entregues no saneamento/evolução do front:
 ### 4.7 Módulos futuros
 - **RF23** ✅ — **Reserva/colchão (modelo de meta).** O sistema **calcula a meta** de colchão automaticamente (`custo mensal das despesas × meses`, meta escolhível **3/6/12**). O usuário só informa **quanto já tem guardado** (`reservaAtual`) — um único campo concreto (nada de % abstrato). O sistema exibe **progresso** (saldo ÷ meta), **quanto falta** e os **meses de sobrevivência** (`saldo ÷ despesas mensais`). A reserva **não entra na cascata** do dinheiro livre (é meta paralela, não desconto). Bloco na Home, dentro do card. O **saque** fica para fase posterior.
 - **RF26** ✅ — O sistema deve permitir **navegar entre meses na Home** (mês corrente, anteriores e seguintes), fazendo o card de dinheiro livre, os avisos e a lista de receitas refletirem o mês selecionado. *Stepper* discreto (`‹ mês ›`), sem calendário.
-- **RF24** 🔜 — O sistema deve oferecer um **copiloto de IA** (chat) para responder perguntas e **capturar dados por linguagem natural** — rodando via **modelo local (Ollama)**, grátis e privado. Regra: a IA interpreta/verbaliza, o **código calcula** (nunca inventa número).
+- **RF24** 🔜 — O sistema deve oferecer um **copiloto de IA** (chat) para responder perguntas e **capturar dados por linguagem natural** — rodando via **modelo local (Ollama)**, grátis e privado. Regra: a IA interpreta/verbaliza, o **código calcula** (nunca inventa número). Detalhado na seção **4.8**.
 - **RF25** 🔜 — O sistema deve permitir **importar um extrato** bancário e sugerir a categorização das transações.
 - **RF27** 🔜 — O sistema deve oferecer uma **tela de Histórico/Extrato** com filtros de período mais finos (**dia, semana, mês, ano**). Fica **fora da Home** para preservar o padrão dela.
 
 > **Nota de design — avisos por hierarquia de urgência:** os avisos calculados (seção de insights) devem ser separados por peso. Avisos **críticos/perda** (ex.: fechar no vermelho, concentração excessiva de gasto) aparecem **fixos e destacados no topo**, com cara de alerta. Avisos **informativos** (média, imposto do ano, reserva sugerida, comparação com mês anterior) ficam numa área própria dentro do card, **rotativos**, com o número em destaque. Princípio: *"se tudo é aviso, nada é aviso"*.
+
+### 4.8 Copiloto de IA — Captura por linguagem natural (RF24, detalhado) 🔜
+
+> **Fase 3.** Primeiro modo a ser implementado: **captura**. O chat consultor (modo leitura) reaproveita a mesma canalização e vem depois.
+
+**Princípio central (inegociável):** a IA **interpreta linguagem**; o **código calcula e grava**. O modelo nunca produz um valor final nem escreve direto no banco — ele apenas **extrai dados estruturados** e propõe uma ação, que o usuário **confirma**. Padrão técnico: **tool calling** (a IA escolhe qual função chamar e com quais parâmetros; a função é nossa e é testável).
+
+**Fluxo da captura:**
+```
+"comprei um monitor por 1200 no cartão do nubank"
+      │  IA extrai (tool calling)
+      ▼
+{ nome:"Monitor", preco:1200, tipoPagamento:"Cartão", banco:"Nubank", categoria:"Escritório", confianca:{categoria:"baixa"} }
+      │  UI mostra pré-visualização editável
+      ▼
+[ Confirmar ]  [ Corrigir ]   ← human-in-the-loop OBRIGATÓRIO
+      │  ao confirmar
+      ▼
+salvar() do FaturasContext  → grava a Fatura de verdade
+```
+
+**Requisitos derivados:**
+- **RF24a** — A IA deve **extrair** de uma frase os campos de uma `Fatura` (nome, preço, tipo de pagamento, banco, categoria, periodicidade).
+- **RF24b** — Antes de gravar, o sistema deve **exibir uma pré-visualização editável** e exigir **confirmação** do usuário (a IA erra; o usuário é a autoridade final).
+- **RF24c** — Quando a IA **não tiver certeza** de um campo (ex.: categoria), deve **perguntar** em vez de chutar.
+- **RF24d** — Se o Ollama estiver **desligado/indisponível**, o sistema deve avisar com clareza e permitir o cadastro manual normal (a IA é conveniência, não dependência).
+
+**Regras de negócio da IA:** ver **RN10–RN13** na seção 8.
+
+**Arquitetura (camadas), respeitando a regra de dependência:**
+```
+features/chat/     → tela de conversa + pré-visualização/confirmação (UI)
+      │ usa
+domain/ia/         → prompt do sistema, catálogo de ferramentas (o que a IA pode chamar),
+      │ usa          validação/parse do que a IA extrai (schema), tipos
+lib/ollama/        → adapter HTTP para o Ollama (localhost:11434). ISOLADO de propósito:
+      │              trocável por uma API cloud no futuro sem tocar no resto (Fase SaaS)
+domain/fatura|reserva|receita  → funções JÁ existentes viram "ferramentas" da IA
+```
+
+**Decisões e trade-offs registrados:**
+- **Ollama local:** grátis, privado, offline, e o navegador chama `localhost:11434` **sem backend** (casa com o front-first). Custo: o usuário precisa **instalar o Ollama** e ter máquina razoável — aceitável para protótipo/uso próprio, revisível para distribuição em massa.
+- **Modelo:** `llama3.1:8b` (bom equilíbrio para tool calling em máquina comum); alternativa mais leve `qwen2.5:7b`.
+- **Risco — alucinação:** mitigado por (1) IA nunca calcula o número final, (2) confirmação humana antes de gravar, (3) validação de schema no que a IA extrai, (4) a IA pergunta quando incerta.
+- **`lib/ollama` como adapter isolado** = *Last Responsible Moment*: não nos casamos com o Ollama; a troca para cloud fica adiada até ser necessária.
 
 ---
 
@@ -332,7 +377,13 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 - **RN08 — Cascata do dinheiro livre (✅):** para o mês corrente,
   `dinheiro livre = Σ receitas do mês − Σ imposto reservado do mês − custo mensal total das despesas fixas`.
   Uma receita pertence ao mês da sua `data`.
-- **RN09 — Reserva/colchão (✅, modelo de meta):** `meta = custo mensal das despesas × mesesMetaReserva`; `progresso = saldo (reservaAtual) ÷ meta` (capado em 100%); `falta = max(0, meta − saldo)`; `meses de sobrevivência = saldo ÷ custo mensal das despesas` (quanto tempo o usuário se banca sem nenhuma receita). A reserva **não** entra na cascata da RN08 — é meta paralela, não desconto mensal.
+- **RN09 — Reserva/colchão (✅, modelo de meta):** `meta = custo mensal das despesas × mesesMetaReserva`; `progresso = saldo (reservaAtual) ÷ meta` (capado em 100%); `falta = max(0, meta − saldo)`; `meses de sobrevivência = saldo ÷ custo mensal das despesas` (quanto tempo o usuário se banca sem nenhuma receita). A reserva **não** entra na cascata da RN08 — é meta paralela, não desconto mensal. **Exibição da sobrevivência:** a partir de 1 mês, expressa em **meses** (arredondado); abaixo disso, em **dias** (`meses × 30`, arredondado) — saldo pequeno não deve mostrar frações confusas de mês.
+
+### Regras da IA (RF24) 🔜
+- **RN10 — A IA não calcula nem grava sozinha:** o modelo só **extrai dados** e **narra** resultados de funções nossas; todo número final vem do código (testável) e toda gravação passa por confirmação humana.
+- **RN11 — Confirmação obrigatória na captura:** nenhuma `Fatura`/`Receita` é persistida sem o usuário confirmar a pré-visualização. A IA propõe; o usuário decide.
+- **RN12 — Incerteza vira pergunta:** se a IA não tiver confiança num campo (categoria, banco), deve **perguntar**, nunca chutar silenciosamente.
+- **RN13 — IA é conveniência, não dependência:** com o Ollama indisponível, o app segue 100% funcional pelo cadastro manual; a IA falha de forma graciosa e avisa.
 
 ---
 
@@ -352,7 +403,8 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 | Reserva/colchão: meta + progresso + sobrevivência (RF23) | ✅ Feito |
 | Recorrência de receita / metas | 🔜 Fase 2 (a desenhar) |
 | Backend Java/Spring + PostgreSQL | 🔜 Fase futura |
-| IA copiloto (Ollama local) + captura por linguagem natural (RF24) | 🔜 Planejado |
+| IA — captura por linguagem natural (RF24a–d, seção 4.8) | 🔜 Fase 3 — **próximo grande passo** (começa por aqui) |
+| IA — chat consultor (modo leitura) | 🔜 Fase 3 — depois da captura |
 | Importação de extrato (RF25) / Histórico (RF27) | 🔜 Planejado |
 
 ---
