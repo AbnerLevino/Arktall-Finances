@@ -3,36 +3,53 @@ import { custoMensalTotal } from '@/domain/fatura/calc'
 
 type Args = {
   despesas: Fatura[]
+  imposto: number // imposto reservado do mês (Σ receitas × alíquota) — vem da cascata
   reservaAtual: number // R$ que o usuário já tem guardado
-  mesesMeta: number // meta em meses de despesas (3, 6, 12...)
 }
 
-// O retrato da reserva de emergência — tudo derivado, o sistema é quem calcula.
-export type DetalheReserva = {
-  meta: number // total ideal a ter guardado (despesas mensais × mesesMeta)
+// O retrato do colchão de segurança — tudo derivado, o sistema é quem calcula.
+// Responde: "quanto preciso ter guardado pra não fechar no vermelho no próximo mês?"
+export type DetalheColchao = {
+  necessario: number // total a ter guardado (despesas fixas + imposto a pagar)
+  despesasFixas: number // parcela de despesas do necessário
+  imposto: number // parcela de imposto do necessário
   saldo: number // quanto já tem (informado pelo usuário)
-  falta: number // quanto ainda falta pra meta (nunca negativo)
-  progresso: number // % do saldo em relação à meta (0–100)
-  mesesSobrevivencia: number | null // saldo ÷ despesas mensais (null se sem despesa)
+  falta: number // quanto ainda falta (nunca negativo)
+  progresso: number // % do saldo em relação ao necessário (0–100)
+  coberto: boolean // o saldo já cobre o próximo mês?
+  mesesSobrevivencia: number | null // saldo ÷ despesas fixas (null se sem despesa)
 }
 
 /**
- * Modelo de META: o usuário só informa quanto já tem (saldo) e escolhe a meta
- * em meses; o sistema calcula o resto (RN09). Responde "quanto preciso guardar".
+ * Modelo "colchão do próximo mês": o número que responde à pergunta real do
+ * autônomo — quanto ter guardado pra atravessar o próximo mês sem ficar no
+ * vermelho. Custo fixo é constante todo mês; o imposto reservado é dinheiro que
+ * não é seu (vai pro governo), por isso soma no que você precisa ter à parte.
  */
-export function calcularReserva({
+export function calcularColchao({
   despesas,
+  imposto,
   reservaAtual,
-  mesesMeta,
-}: Args): DetalheReserva {
-  const custoMensal = custoMensalTotal(despesas)
-  const meta = custoMensal * mesesMeta
+}: Args): DetalheColchao {
+  const despesasFixas = custoMensalTotal(despesas)
+  const necessario = despesasFixas + imposto
   const saldo = reservaAtual
-  const falta = Math.max(0, meta - saldo)
-  const progresso = meta > 0 ? Math.min(100, (saldo / meta) * 100) : 0
-  const mesesSobrevivencia = custoMensal > 0 ? saldo / custoMensal : null
+  const falta = Math.max(0, necessario - saldo)
+  const progresso = necessario > 0 ? Math.min(100, (saldo / necessario) * 100) : 0
+  const coberto = necessario > 0 && saldo >= necessario
+  // "aguenta X sem receita" = por quanto tempo o guardado paga o custo fixo
+  const mesesSobrevivencia = despesasFixas > 0 ? saldo / despesasFixas : null
 
-  return { meta, saldo, falta, progresso, mesesSobrevivencia }
+  return {
+    necessario,
+    despesasFixas,
+    imposto,
+    saldo,
+    falta,
+    progresso,
+    coberto,
+    mesesSobrevivencia,
+  }
 }
 
 /**

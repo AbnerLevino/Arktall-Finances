@@ -530,78 +530,38 @@
   padding-top: var(--space-4);
 }
 
-.reservaHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
 .reservaTitulo {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-icon-hover);
 }
 
-/* Seletor da meta (3 / 6 / 12 meses) — chips */
-.metaSeletor {
-  display: flex;
-  gap: 4px;
-}
-
-.metaBtn {
-  padding: 4px 10px;
-  font-size: 12px;
-  font-family: inherit;
+/* Chamada principal: "tenha R$ X guardado" */
+.reservaChamada {
+  font-size: 14px;
   color: var(--color-icon);
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  cursor: pointer;
-  transition:
-    color 120ms ease,
-    background-color 120ms ease,
-    border-color 120ms ease;
+  line-height: 1.5;
 }
 
-.metaBtn:hover {
-  color: var(--color-icon-hover);
-  border-color: var(--color-icon);
-}
-
-.metaBtnAtivo,
-.metaBtnAtivo:hover {
-  color: var(--color-on-accent);
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-}
-
-.reservaValores {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.reservaSaldo {
+.reservaChamada strong {
   font-size: 18px;
-  font-weight: 700;
-  color: var(--color-icon-hover);
-  font-variant-numeric: tabular-nums;
-}
-
-.reservaMeta {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--color-icon);
-}
-
-.reservaPct {
-  font-size: 15px;
   font-weight: 700;
   color: var(--color-accent);
   font-variant-numeric: tabular-nums;
+}
+
+/* Composição do necessário: despesas + imposto */
+.reservaComposicao {
+  font-size: 12px;
+  color: var(--color-icon);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Estado sem despesas cadastradas */
+.reservaVazio {
+  font-size: 13px;
+  color: var(--color-icon);
+  margin: 0;
 }
 
 /* Barra de progresso do colchão */

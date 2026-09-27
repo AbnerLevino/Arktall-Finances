@@ -7,7 +7,7 @@ import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
 import { despesasPorCategoria } from '@/domain/fatura/calc'
-import { calcularReserva, descreverSobrevivencia } from '@/domain/reserva/reserva'
+import { calcularColchao, descreverSobrevivencia } from '@/domain/reserva/reserva'
 import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import { useFaturas } from '@/domain/fatura/faturasStore'
@@ -20,7 +20,7 @@ const NOME_USUARIO = 'Abner Levino'
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
   const { receitas, adicionar, editar, remover } = useReceitas()
-  const { config, setAliquota, setReservaAtual, setMesesMeta } = useConfig()
+  const { config, setAliquota, setReservaAtual } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
   // receita em edição; null = modo criação
   const [receitaEditando, setReceitaEditando] = useState<Receita | null>(null)
@@ -65,12 +65,13 @@ export function Home() {
     mes: mesSelecionado,
   })
 
-  // reserva de emergência (modelo meta: o sistema calcula tudo a partir das
-  // despesas + saldo informado; o usuário quase não digita)
-  const reserva = calcularReserva({
+  // colchão de segurança: quanto ter guardado pra não fechar no vermelho no
+  // próximo mês (despesas fixas + imposto a pagar). Reaproveita o imposto JÁ
+  // calculado na cascata (detalhe.imposto) — fonte única da verdade.
+  const colchao = calcularColchao({
     despesas,
+    imposto: detalhe.imposto,
     reservaAtual: config.reservaAtual,
-    mesesMeta: config.mesesMetaReserva,
   })
 
   // receitas do mês em foco, mais recentes primeiro (para a lista)
@@ -331,54 +332,54 @@ export function Home() {
           <span className={styles.aliquotaHelp}>{textoAliquota}</span>
         </div>
 
-        {/* Bloco: reserva de emergência (modelo meta — o sistema diz quanto guardar) */}
+        {/* Bloco: colchão de segurança — o sistema diz quanto guardar pro próximo mês */}
         <div className={styles.reservaBloco}>
-          <div className={styles.reservaHeader}>
-            <span className={styles.reservaTitulo}>🛟 Reserva de emergência</span>
-            <div className={styles.metaSeletor}>
-              {[3, 6, 12].map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  className={`${styles.metaBtn} ${config.mesesMetaReserva === m ? styles.metaBtnAtivo : ''}`}
-                  onClick={() => setMesesMeta(m)}
-                >
-                  {m} meses
-                </button>
-              ))}
-            </div>
-          </div>
+          <span className={styles.reservaTitulo}>🛡️ Colchão de segurança</span>
 
-          <div className={styles.reservaValores}>
-            <span className={styles.reservaSaldo}>
-              {formatarPreco(reserva.saldo)}{' '}
-              <span className={styles.reservaMeta}>
-                de {formatarPreco(reserva.meta)}
-              </span>
-            </span>
-            <span className={styles.reservaPct}>
-              {Math.round(reserva.progresso)}%
-            </span>
-          </div>
+          {colchao.necessario > 0 ? (
+            <>
+              <div className={styles.reservaChamada}>
+                Pra não fechar no vermelho no próximo mês, tenha{' '}
+                <strong>{formatarPreco(colchao.necessario)}</strong> guardado
+              </div>
+              <div className={styles.reservaComposicao}>
+                {formatarPreco(colchao.despesasFixas)} de despesas
+                {colchao.imposto > 0 &&
+                  ` + ${formatarPreco(colchao.imposto)} de imposto`}
+              </div>
 
-          <div className={styles.reservaBarra}>
-            <div
-              className={styles.reservaBarraFill}
-              style={{ width: `${reserva.progresso}%` }}
-            />
-          </div>
+              <div className={styles.reservaBarra}>
+                <div
+                  className={styles.reservaBarraFill}
+                  style={{ width: `${colchao.progresso}%` }}
+                />
+              </div>
 
-          <div className={styles.reservaInfo}>
-            {reserva.falta > 0
-              ? `Faltam ${formatarPreco(reserva.falta)}`
-              : 'Meta atingida! 🎉'}
-            {descreverSobrevivencia(reserva.mesesSobrevivencia) && (
-              <>
-                {' · aguenta '}
-                {descreverSobrevivencia(reserva.mesesSobrevivencia)} sem receita
-              </>
-            )}
-          </div>
+              <div className={styles.reservaInfo}>
+                {colchao.coberto ? (
+                  <>
+                    Coberto! 🎉 Você tem {formatarPreco(colchao.saldo)}
+                    {descreverSobrevivencia(colchao.mesesSobrevivencia) && (
+                      <>
+                        {' · aguenta '}
+                        {descreverSobrevivencia(colchao.mesesSobrevivencia)} sem
+                        receita
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    Você tem {formatarPreco(colchao.saldo)} ·{' '}
+                    <strong>faltam {formatarPreco(colchao.falta)}</strong>
+                  </>
+                )}
+              </div>
+            </>
+          ) : (
+            <p className={styles.reservaVazio}>
+              Cadastre suas despesas fixas para o sistema calcular seu colchão.
+            </p>
+          )}
 
           <label className={styles.reservaCampo}>
             <span>Quanto você já tem guardado?</span>

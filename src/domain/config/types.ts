@@ -4,5 +4,4 @@
 export type Config = {
   aliquotaImposto: number // percentual, ex.: 6 = 6%
   reservaAtual: number // R$ que o usuário já tem guardado (saldo do colchão)
-  mesesMetaReserva: number // meta do colchão em meses de despesas (3, 6 ou 12)
 }

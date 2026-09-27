@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcularReserva, descreverSobrevivencia } from './reserva'
+import { calcularColchao, descreverSobrevivencia } from './reserva'
 import type { Fatura } from '@/domain/fatura/types'
 
 function despesa(preco: number): Fatura {
@@ -11,34 +11,39 @@ function despesa(preco: number): Fatura {
   }
 }
 
-describe('calcularReserva', () => {
-  it('calcula meta, falta, progresso e sobrevivência', () => {
-    // despesas 2000/mês, meta 3 meses = 6000; já tem 2000
-    const r = calcularReserva({
-      despesas: [despesa(2000)],
-      reservaAtual: 2000,
-      mesesMeta: 3,
+describe('calcularColchao', () => {
+  it('necessário = despesas + imposto; calcula falta e progresso', () => {
+    // despesas 1200 + imposto 300 = necessário 1500; já tem 800
+    const r = calcularColchao({
+      despesas: [despesa(1200)],
+      imposto: 300,
+      reservaAtual: 800,
     })
-    expect(r.meta).toBe(6000)
-    expect(r.falta).toBe(4000)
-    expect(Math.round(r.progresso)).toBe(33) // 2000/6000
-    expect(r.mesesSobrevivencia).toBe(1) // 2000 / 2000
+    expect(r.necessario).toBe(1500)
+    expect(r.despesasFixas).toBe(1200)
+    expect(r.imposto).toBe(300)
+    expect(r.falta).toBe(700)
+    expect(Math.round(r.progresso)).toBe(53) // 800/1500
+    expect(r.coberto).toBe(false)
   })
 
-  it('progresso não passa de 100% e falta não fica negativa', () => {
-    const r = calcularReserva({
+  it('saldo cobre o necessário: coberto, falta 0, progresso capado em 100', () => {
+    const r = calcularColchao({
       despesas: [despesa(1000)],
-      reservaAtual: 9000, // acima da meta (3000)
-      mesesMeta: 3,
+      imposto: 0,
+      reservaAtual: 2000, // acima do necessário (1000)
     })
-    expect(r.progresso).toBe(100)
+    expect(r.coberto).toBe(true)
     expect(r.falta).toBe(0)
+    expect(r.progresso).toBe(100)
+    expect(r.mesesSobrevivencia).toBe(2) // 2000 ÷ 1000 de custo fixo
   })
 
-  it('sem despesas: meta 0 e sobrevivência null', () => {
-    const r = calcularReserva({ despesas: [], reservaAtual: 500, mesesMeta: 6 })
-    expect(r.meta).toBe(0)
+  it('sem despesas nem imposto: necessário 0 e sobrevivência null', () => {
+    const r = calcularColchao({ despesas: [], imposto: 0, reservaAtual: 500 })
+    expect(r.necessario).toBe(0)
     expect(r.mesesSobrevivencia).toBeNull()
+    expect(r.coberto).toBe(false)
   })
 })
 
