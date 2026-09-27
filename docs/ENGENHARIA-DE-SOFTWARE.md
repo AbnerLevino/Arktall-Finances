@@ -123,20 +123,27 @@ Freelancer, prestador de serviço, MEI ou pequeno empreendedor. **Recebe valores
 - **RF11** ✅ — O sistema deve exibir uma **linha do tempo (tipo Gantt)** com a vida de cada assinatura (do início até o cancelamento ou até hoje).
 - **RF12** ✅ — O sistema deve calcular séries de **gasto acumulado** e **gasto mensal por categoria** ao longo do tempo.
 
-### 4.4 Módulo "Quanto é meu de verdade" (MVP) 🎯
-Módulo foco da fase atual. Ainda a implementar.
-- **RF18** 🎯 — O sistema deve permitir ao usuário **registrar uma receita**, informando **valor**, **data de recebimento** e **origem/descrição**.
-- **RF19** 🎯 — O sistema deve **calcular automaticamente o imposto reservado** de cada receita, aplicando uma **alíquota percentual única, configurável** pelo usuário.
-- **RF20** 🎯 — O sistema deve considerar o **total das despesas fixas mensais** já cadastradas como uma das saídas do cálculo.
-- **RF21** 🎯 — O sistema deve calcular o **dinheiro livre do mês** como: *receitas do mês − imposto reservado − despesas fixas do mês*.
-- **RF22** 🎯 — O sistema deve **exibir o dinheiro livre do mês corrente de forma destacada na tela inicial (Home)**.
+### 4.4 Módulo "Quanto é meu de verdade" (MVP) ✅
+Módulo núcleo — **implementado**.
+- **RF18** ✅ — O sistema deve permitir ao usuário **registrar uma receita**, informando **valor**, **data de recebimento** e **origem/descrição**.
+- **RF19** ✅ — O sistema deve **calcular automaticamente o imposto reservado** de cada receita, aplicando uma **alíquota percentual única, configurável** pelo usuário.
+- **RF20** ✅ — O sistema deve considerar o **total das despesas fixas mensais** já cadastradas como uma das saídas do cálculo.
+- **RF21** ✅ — O sistema deve calcular o **dinheiro livre do mês** como: *receitas do mês − imposto reservado − despesas fixas do mês*.
+- **RF22** ✅ — O sistema deve **exibir o dinheiro livre do mês corrente de forma destacada na tela inicial (Home)**.
 
-### 4.5 Módulos futuros 🔜
-- **RF23** 🔜 — O sistema deve permitir definir uma **reserva/colchão** e descontá-la do dinheiro livre (suavização mês gordo/magro).
-- **RF24** 🔜 — O sistema deve oferecer **insights automáticos** sobre gastos e receitas (IA copiloto).
+### 4.6 Análise e experiência (Fase 1 pós-MVP) ✅
+Entregues no saneamento/evolução do front:
+- **RF28** ✅ — O sistema deve permitir **editar e excluir receitas**, e **excluir contas** com confirmação (ação destrutiva).
+- **RF29** ✅ — O sistema deve gerar **avisos calculados** ("insights invisíveis") separados por urgência: **críticos** (mês no vermelho, concentração ≥ 50%) fixos e destacados no topo; **informativos** (comparação com mês passado, média mensal, imposto do ano, reserva sugerida) rotativos no card.
+- **RF30** ✅ — O sistema deve oferecer um **Painel de análise** distinto da Home: KPIs analíticos (comprometimento, taxa de sobra, média mensal, variação vs mês passado), **evolução mês a mês** (receita × despesa × livre) e **de onde vem a renda** (receitas por origem/cliente).
+- **RF31** ✅ — O sistema deve detalhar as **despesas por categoria** ("onde você mais gasta"), ranqueadas com % do total.
+
+### 4.7 Módulos futuros
+- **RF23** 🎯 — **Reserva/colchão (Fase 2 — a fazer agora).** O sistema deve permitir definir uma reserva como **percentual da receita** (`percentualReserva`, configurável, irmão da alíquota). A reserva é mais uma **saída na cascata** do dinheiro livre — mas que **permanece com o usuário** (não é perda). O sistema deve exibir o **cofre acumulado** (Σ reservas de todos os meses) e os **meses de sobrevivência** (`cofre ÷ custo mensal das despesas`). O **saque** do cofre fica para fase posterior.
+- **RF26** ✅ — O sistema deve permitir **navegar entre meses na Home** (mês corrente, anteriores e seguintes), fazendo o card de dinheiro livre, os avisos e a lista de receitas refletirem o mês selecionado. *Stepper* discreto (`‹ mês ›`), sem calendário.
+- **RF24** 🔜 — O sistema deve oferecer um **copiloto de IA** (chat) para responder perguntas e **capturar dados por linguagem natural** — rodando via **modelo local (Ollama)**, grátis e privado. Regra: a IA interpreta/verbaliza, o **código calcula** (nunca inventa número).
 - **RF25** 🔜 — O sistema deve permitir **importar um extrato** bancário e sugerir a categorização das transações.
-- **RF26** 🎯 — O sistema deve permitir **navegar entre meses na Home** (mês corrente, anteriores e seguintes), fazendo o card de dinheiro livre, os avisos e a lista de receitas refletirem o mês selecionado. Interação por *stepper* discreto (`‹ mês ›`), sem calendário.
-- **RF27** 🔜 — O sistema deve oferecer uma **tela de Histórico/Extrato** com filtros de período mais finos (**dia, semana, mês, ano**). Fica **fora da Home** para preservar o padrão dela (a Home é a vitrine do mês corrente).
+- **RF27** 🔜 — O sistema deve oferecer uma **tela de Histórico/Extrato** com filtros de período mais finos (**dia, semana, mês, ano**). Fica **fora da Home** para preservar o padrão dela.
 
 > **Nota de design — avisos por hierarquia de urgência:** os avisos calculados (seção de insights) devem ser separados por peso. Avisos **críticos/perda** (ex.: fechar no vermelho, concentração excessiva de gasto) aparecem **fixos e destacados no topo**, com cara de alerta. Avisos **informativos** (média, imposto do ano, reserva sugerida, comparação com mês anterior) ficam numa área própria dentro do card, **rotativos**, com o número em destaque. Princípio: *"se tudo é aviso, nada é aviso"*.
 
@@ -305,6 +312,7 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `aliquotaImposto` | `number` | Percentual de imposto a reservar de cada receita (ex.: 6 = 6%) |
+| `percentualReserva` | `number` | Percentual da receita destinado ao colchão/reserva (ex.: 20 = 20%). Sai do dinheiro livre, mas permanece com o usuário (RF23) |
 
 ### 7.5 Entidades futuras (roadmap)
 - **`Transacao`** — para importação de extrato (valor, data, descrição, categoria sugerida).
@@ -320,9 +328,10 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 - **RN05 — Agrupamento:** contas cuja categoria não bate com nenhuma categoria existente vão para o grupo **"Sem categoria"**.
 - **RN06 — Fonte da verdade das categorias:** o hook `useCategorias` deve ser chamado **uma única vez** no componente pai e compartilhado por props (dois usos separados criariam estados divergentes).
 - **RN07 — Imposto reservado (MVP 🎯):** para cada receita, `imposto = valor × (aliquotaImposto / 100)`.
-- **RN08 — Cascata do dinheiro livre (MVP 🎯):** para o mês corrente,
-  `dinheiro livre = Σ receitas do mês − Σ imposto reservado do mês − custo mensal total das despesas fixas`.
+- **RN08 — Cascata do dinheiro livre (✅):** para o mês corrente,
+  `dinheiro livre = Σ receitas do mês − Σ imposto reservado do mês − custo mensal total das despesas fixas − reserva do mês (RN09)`.
   Uma receita pertence ao mês da sua `data`.
+- **RN09 — Reserva/colchão (🎯):** `reserva do mês = Σ receitas do mês × (percentualReserva / 100)`. É a última saída da cascata (RN08), mas **permanece com o usuário** (diferente de imposto/despesa, que são perdas). O **cofre acumulado** = soma das reservas de todos os meses; os **meses de sobrevivência** = `cofre acumulado ÷ custo mensal total das despesas fixas` (quanto tempo o usuário se banca sem nenhuma receita).
 
 ---
 
@@ -330,23 +339,20 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 
 | Funcionalidade | Status |
 |----------------|--------|
-| Cadastrar conta | ✅ Feito |
-| Editar conta | ✅ Feito |
-| Excluir conta | 🔜 Botão existe, ação não ligada |
-| Criar categorias | ✅ Feito |
-| Agrupar por categoria | ✅ Feito |
-| KPI de custo mensal | ✅ Feito |
-| Gráfico por categoria | ✅ Feito |
-| Linha do tempo (Gantt) | ✅ Feito |
-| Séries acumulada/mensal | ✅ Calculadas |
-| **Registrar receitas (RF18)** | 🎯 **MVP — a fazer** |
-| **Reserva de imposto (RF19)** | 🎯 **MVP — a fazer** |
-| **Cálculo do dinheiro livre (RF21)** | 🎯 **MVP — a fazer** |
-| **Dinheiro livre na Home (RF22)** | 🎯 **MVP — a fazer** |
-| Reserva/colchão (suavização) | 🔜 Fase futura |
-| Backend Java/Spring + PostgreSQL | 🔜 Fase 2 (pós-MVP) |
-| IA copiloto | 🔜 Planejado |
-| Importação de extrato | 🔜 Planejado |
+| Cadastrar / editar / excluir conta (RF01–03) | ✅ Feito |
+| Criar categorias / agrupar (RF04, RF07–08) | ✅ Feito |
+| Registrar / editar / excluir receita (RF18, RF28) | ✅ Feito |
+| Imposto + dinheiro livre (RF19–RF22) | ✅ Feito |
+| Home: cascata + navegação de meses (RF26) | ✅ Feito |
+| Avisos calculados / insights (RF29) | ✅ Feito |
+| Painel: KPIs + evolução + origem da renda (RF30) | ✅ Feito |
+| Despesas por categoria (RF31) | ✅ Feito |
+| Fonte única de dados via Context (faturas) | ✅ Feito |
+| **Reserva/colchão: % + cofre + sobrevivência (RF23)** | 🎯 **Fase 2 — a fazer agora** |
+| Recorrência de receita / metas | 🔜 Fase 2 (a desenhar) |
+| Backend Java/Spring + PostgreSQL | 🔜 Fase futura |
+| IA copiloto (Ollama local) + captura por linguagem natural (RF24) | 🔜 Planejado |
+| Importação de extrato (RF25) / Histórico (RF27) | 🔜 Planejado |
 
 ---
 

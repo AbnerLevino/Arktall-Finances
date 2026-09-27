@@ -317,6 +317,11 @@
   color: rgba(239, 68, 68, 0.7);
 }
 
+/* Reserva: também sai da cascata, mas é GUARDADA (não é perda) — dourado */
+.guardado {
+  color: var(--color-accent);
+}
+
 /* "Despesas fixas" clicável + pop-up horizontal com o detalhamento */
 .despesasWrap {
   position: relative;
@@ -481,6 +486,13 @@
 /* Fica vermelho quando o mês fecha no negativo */
 .negativo {
   color: #ef4444;
+}
+
+/* Os dois campos de ajuste (alíquota + reserva) lado a lado */
+.ajustes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
 .aliquota {

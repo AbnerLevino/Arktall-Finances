@@ -53,4 +53,18 @@ describe('dinheiroLivreDoMes', () => {
     })
     expect(d.livre).toBe(-500)
   })
+
+  it('desconta a reserva (colchão) da cascata', () => {
+    // recebido 8000; imposto 6% = 480; despesas 2000; reserva 20% de 8000 = 1600
+    // livre = 8000 - 480 - 2000 - 1600 = 3920
+    const d = dinheiroLivreDoMes({
+      receitas,
+      despesas: [despesaMensal(2000)],
+      aliquota: 6,
+      mes: '2026-09',
+      reserva: 20,
+    })
+    expect(d.reserva).toBe(1600)
+    expect(d.livre).toBe(3920)
+  })
 })

@@ -10,6 +10,7 @@ type Entrada = {
   despesas: Fatura[]
   aliquota: number
   mes: string // "AAAA-MM"
+  reserva: number // % da receita guardado no colchão
 }
 
 // KPIs ANALÍTICOS do Painel — razões/tendências (não os valores brutos da Home).
@@ -19,6 +20,8 @@ export type MetricasPainel = {
   taxaSobra: number | null // % da renda que sobra livre
   mediaMensal: number // receita média por mês com dados
   variacao: number | null // % de variação da receita vs mês anterior
+  cofre: number // colchão acumulado (Σ reservas de todos os meses)
+  mesesSobrevivencia: number | null // cofre ÷ despesas mensais (null se sem despesa)
 }
 
 export function metricasDoPainel({
@@ -26,8 +29,9 @@ export function metricasDoPainel({
   despesas,
   aliquota,
   mes,
+  reserva,
 }: Entrada): MetricasPainel {
-  const d = dinheiroLivreDoMes({ receitas, despesas, aliquota, mes })
+  const d = dinheiroLivreDoMes({ receitas, despesas, aliquota, mes, reserva })
 
   const comprometimento =
     d.recebido > 0 ? ((d.imposto + d.despesas) / d.recebido) * 100 : null
@@ -46,7 +50,19 @@ export function metricasDoPainel({
       ? ((d.recebido - recebidoAnterior) / recebidoAnterior) * 100
       : null
 
-  return { comprometimento, taxaSobra, mediaMensal, variacao }
+  // Colchão: soma de tudo que foi reservado ao longo dos meses.
+  const cofre = totalGeral * (reserva / 100)
+  const custoDespesas = custoMensalTotal(despesas)
+  const mesesSobrevivencia = custoDespesas > 0 ? cofre / custoDespesas : null
+
+  return {
+    comprometimento,
+    taxaSobra,
+    mediaMensal,
+    variacao,
+    cofre,
+    mesesSobrevivencia,
+  }
 }
 
 // Um ponto da linha do tempo: um mês com receita cadastrada.
@@ -68,6 +84,7 @@ export function evolucaoMensal({
   receitas,
   despesas,
   aliquota,
+  reserva,
 }: Omit<Entrada, 'mes'>): PontoEvolucao[] {
   const meses = [...new Set(receitas.map((r) => r.data.slice(0, 7)))].sort()
   const despesa = custoMensalTotal(despesas)
@@ -75,7 +92,14 @@ export function evolucaoMensal({
   return meses.map((mes) => {
     const recebido = receitasDoMes(receitas, mes).reduce((s, r) => s + r.valor, 0)
     const imposto = recebido * (aliquota / 100)
-    return { mes, recebido, despesa, imposto, livre: recebido - imposto - despesa }
+    const valorReserva = recebido * (reserva / 100)
+    return {
+      mes,
+      recebido,
+      despesa,
+      imposto,
+      livre: recebido - imposto - despesa - valorReserva,
+    }
   })
 }
 

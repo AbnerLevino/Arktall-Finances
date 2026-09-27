@@ -3,4 +3,5 @@
 // ajustes do app vão morar (moeda padrão, reserva/colchão, etc.).
 export type Config = {
   aliquotaImposto: number // percentual, ex.: 6 = 6%
+  percentualReserva: number // percentual da receita guardado no colchão, ex.: 20 = 20%
 }

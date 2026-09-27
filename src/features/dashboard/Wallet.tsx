@@ -27,12 +27,14 @@ export function Wallet() {
     despesas: faturas,
     aliquota: config.aliquotaImposto,
     mes: mesAtual,
+    reserva: config.percentualReserva,
   })
 
   const evolucao = evolucaoMensal({
     receitas,
     despesas: faturas,
     aliquota: config.aliquotaImposto,
+    reserva: config.percentualReserva,
   })
 
   const renda = rendaPorOrigem(receitas).map((r, i) => ({
@@ -64,6 +66,20 @@ export function Wallet() {
           <div className={styles.kpiCard}>
             <span className={styles.kpiLabel}>Vs. mês passado</span>
             <span className={styles.kpiValue}>{pct(metricas.variacao)}</span>
+          </div>
+          <div className={styles.kpiCard}>
+            <span className={styles.kpiLabel}>Colchão acumulado</span>
+            <span className={styles.kpiValue}>{formatarPreco(metricas.cofre)}</span>
+          </div>
+          <div className={styles.kpiCard}>
+            <span className={styles.kpiLabel}>Meses de sobrevivência</span>
+            <span className={styles.kpiValue}>
+              {metricas.mesesSobrevivencia === null
+                ? '—'
+                : metricas.mesesSobrevivencia.toLocaleString('pt-BR', {
+                    maximumFractionDigits: 1,
+                  })}
+            </span>
           </div>
         </div>
 

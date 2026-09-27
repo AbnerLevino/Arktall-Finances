@@ -19,7 +19,7 @@ function despesa(preco: number, categoria: string): Fatura {
 }
 
 function detalhe(over: Partial<DetalheDinheiroLivre>): DetalheDinheiroLivre {
-  return { recebido: 0, imposto: 0, despesas: 0, livre: 0, ...over }
+  return { recebido: 0, imposto: 0, despesas: 0, reserva: 0, livre: 0, ...over }
 }
 
 describe('gerarInsights', () => {

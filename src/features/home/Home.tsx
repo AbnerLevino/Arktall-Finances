@@ -19,7 +19,7 @@ const NOME_USUARIO = 'Abner Levino'
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
   const { receitas, adicionar, editar, remover } = useReceitas()
-  const { config, setAliquota } = useConfig()
+  const { config, setAliquota, setReserva } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
   // receita em edição; null = modo criação
   const [receitaEditando, setReceitaEditando] = useState<Receita | null>(null)
@@ -62,6 +62,7 @@ export function Home() {
     despesas,
     aliquota: config.aliquotaImposto,
     mes: mesSelecionado,
+    reserva: config.percentualReserva,
   })
 
   // receitas do mês em foco, mais recentes primeiro (para a lista)
@@ -305,20 +306,43 @@ export function Home() {
                 </div>
               )}
             </div>
+
+            {detalhe.reserva > 0 && (
+              <div className={styles.breakdownRow}>
+                <span className={styles.breakdownLabel}>
+                  Reserva ({config.percentualReserva}%)
+                </span>
+                <span className={`${styles.breakdownValue} ${styles.guardado}`}>
+                  − {formatarPreco(detalhe.reserva)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
         <div className={styles.cardFooter}>
-          <label className={styles.aliquota}>
-            <span>Alíquota de imposto (%)</span>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={config.aliquotaImposto}
-              onChange={(e) => setAliquota(Number(e.target.value))}
-            />
-          </label>
+          <div className={styles.ajustes}>
+            <label className={styles.aliquota}>
+              <span>Alíquota de imposto (%)</span>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={config.aliquotaImposto}
+                onChange={(e) => setAliquota(Number(e.target.value))}
+              />
+            </label>
+            <label className={styles.aliquota}>
+              <span>Reserva / colchão (%)</span>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={config.percentualReserva}
+                onChange={(e) => setReserva(Number(e.target.value))}
+              />
+            </label>
+          </div>
           <span className={styles.aliquotaHelp}>{textoAliquota}</span>
         </div>
       </div>
