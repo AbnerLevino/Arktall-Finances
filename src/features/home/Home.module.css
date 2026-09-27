@@ -530,51 +530,21 @@
   padding-top: var(--space-4);
 }
 
-/* Título/pergunta que o bloco responde — cabeçalho da seção */
+/* Título do bloco — mesma linguagem do rótulo "Dinheiro livre" (.label) */
 .reservaTitulo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
-  color: var(--color-icon-hover);
-}
-
-/* Ícone do título num "chip" dourado suave, pra dar peso de cabeçalho */
-.reservaTituloIcone {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md);
-  background: var(--color-accent-soft);
-  font-size: 16px;
-  line-height: 1;
-}
-
-/* Chamada principal: rótulo pequeno + número-herói */
-.reservaChamada {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.reservaLabel {
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--color-icon);
 }
 
+/* Número-herói — mesma linguagem do valor de "Dinheiro livre" (.value) */
 .reservaValor {
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
-  color: var(--color-accent);
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--color-icon-hover);
   font-variant-numeric: tabular-nums;
 }
 
@@ -583,7 +553,6 @@
   font-size: 12px;
   color: var(--color-icon);
   font-variant-numeric: tabular-nums;
-  margin-top: calc(-1 * var(--space-2));
 }
 
 /* Estado sem despesas cadastradas */

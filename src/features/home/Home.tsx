@@ -335,22 +335,17 @@ export function Home() {
         {/* Bloco: colchão de segurança — o sistema diz quanto guardar pro próximo mês */}
         <div className={styles.reservaBloco}>
           <h3 className={styles.reservaTitulo}>
-            <span className={styles.reservaTituloIcone}>🛡️</span>
-            Quanto guardar pra não ficar no vermelho
+            🛡️ Quanto guardar pra não ficar no vermelho
           </h3>
 
           {colchao.necessario > 0 ? (
             <>
-              <div className={styles.reservaChamada}>
-                <span className={styles.reservaLabel}>
-                  No próximo mês, tenha guardado
-                </span>
-                <span className={styles.reservaValor}>
-                  {formatarPreco(colchao.necessario)}
-                </span>
-              </div>
+              <span className={styles.reservaValor}>
+                {formatarPreco(colchao.necessario)}
+              </span>
               <div className={styles.reservaComposicao}>
-                {formatarPreco(colchao.despesasFixas)} de despesas
+                No próximo mês · {formatarPreco(colchao.despesasFixas)} de
+                despesas
                 {colchao.imposto > 0 &&
                   ` + ${formatarPreco(colchao.imposto)} de imposto`}
               </div>
