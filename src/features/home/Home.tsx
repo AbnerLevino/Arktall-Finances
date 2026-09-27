@@ -341,8 +341,12 @@ export function Home() {
           {colchao.necessario > 0 ? (
             <>
               <div className={styles.reservaChamada}>
-                No próximo mês, tenha{' '}
-                <strong>{formatarPreco(colchao.necessario)}</strong> guardado
+                <span className={styles.reservaLabel}>
+                  No próximo mês, tenha guardado
+                </span>
+                <span className={styles.reservaValor}>
+                  {formatarPreco(colchao.necessario)}
+                </span>
               </div>
               <div className={styles.reservaComposicao}>
                 {formatarPreco(colchao.despesasFixas)} de despesas
@@ -357,10 +361,12 @@ export function Home() {
                 />
               </div>
 
-              <div className={styles.reservaInfo}>
+              <div
+                className={`${styles.reservaInfo} ${colchao.coberto ? styles.reservaCoberto : ''}`}
+              >
                 {colchao.coberto ? (
                   <>
-                    Coberto! 🎉 Você tem {formatarPreco(colchao.saldo)}
+                    ✅ Coberto! Você tem {formatarPreco(colchao.saldo)}
                     {descreverSobrevivencia(colchao.mesesSobrevivencia) && (
                       <>
                         {' · aguenta '}
@@ -372,7 +378,9 @@ export function Home() {
                 ) : (
                   <>
                     Você tem {formatarPreco(colchao.saldo)} ·{' '}
-                    <strong>faltam {formatarPreco(colchao.falta)}</strong>
+                    <strong className={styles.reservaFalta}>
+                      faltam {formatarPreco(colchao.falta)}
+                    </strong>
                   </>
                 )}
               </div>
