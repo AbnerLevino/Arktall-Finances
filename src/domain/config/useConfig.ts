@@ -4,8 +4,9 @@ import type { Config } from './types'
 // "Gaveta" da configuração no localStorage
 const CHAVE = 'arktall:config'
 
-// Valor inicial se o usuário nunca configurou nada: sem imposto nem reserva.
-const PADRAO: Config = { aliquotaImposto: 0, percentualReserva: 0 }
+// Valor inicial se o usuário nunca configurou nada: sem imposto, sem saldo,
+// meta padrão de 3 meses de colchão.
+const PADRAO: Config = { aliquotaImposto: 0, reservaAtual: 0, mesesMetaReserva: 3 }
 
 /**
  * Custom hook: a configuração do usuário + persistência no localStorage.
@@ -31,11 +32,16 @@ export function useConfig() {
     setConfig((prev) => ({ ...prev, aliquotaImposto: n }))
   }
 
-  // (4) atualizar SÓ o percentual de reserva
-  const setReserva = (n: number) => {
-    setConfig((prev) => ({ ...prev, percentualReserva: n }))
+  // (4) atualizar SÓ o saldo atual da reserva (R$ já guardado)
+  const setReservaAtual = (n: number) => {
+    setConfig((prev) => ({ ...prev, reservaAtual: n }))
   }
 
-  // (5) entrega o dado + as ações
-  return { config, setAliquota, setReserva }
+  // (5) atualizar SÓ a meta (quantos meses de despesas de colchão)
+  const setMesesMeta = (n: number) => {
+    setConfig((prev) => ({ ...prev, mesesMetaReserva: n }))
+  }
+
+  // (6) entrega o dado + as ações
+  return { config, setAliquota, setReservaAtual, setMesesMeta }
 }

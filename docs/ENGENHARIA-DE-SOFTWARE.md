@@ -139,7 +139,7 @@ Entregues no saneamento/evolução do front:
 - **RF31** ✅ — O sistema deve detalhar as **despesas por categoria** ("onde você mais gasta"), ranqueadas com % do total.
 
 ### 4.7 Módulos futuros
-- **RF23** 🎯 — **Reserva/colchão (Fase 2 — a fazer agora).** O sistema deve permitir definir uma reserva como **percentual da receita** (`percentualReserva`, configurável, irmão da alíquota). A reserva é mais uma **saída na cascata** do dinheiro livre — mas que **permanece com o usuário** (não é perda). O sistema deve exibir o **cofre acumulado** (Σ reservas de todos os meses) e os **meses de sobrevivência** (`cofre ÷ custo mensal das despesas`). O **saque** do cofre fica para fase posterior.
+- **RF23** ✅ — **Reserva/colchão (modelo de meta).** O sistema **calcula a meta** de colchão automaticamente (`custo mensal das despesas × meses`, meta escolhível **3/6/12**). O usuário só informa **quanto já tem guardado** (`reservaAtual`) — um único campo concreto (nada de % abstrato). O sistema exibe **progresso** (saldo ÷ meta), **quanto falta** e os **meses de sobrevivência** (`saldo ÷ despesas mensais`). A reserva **não entra na cascata** do dinheiro livre (é meta paralela, não desconto). Bloco na Home, dentro do card. O **saque** fica para fase posterior.
 - **RF26** ✅ — O sistema deve permitir **navegar entre meses na Home** (mês corrente, anteriores e seguintes), fazendo o card de dinheiro livre, os avisos e a lista de receitas refletirem o mês selecionado. *Stepper* discreto (`‹ mês ›`), sem calendário.
 - **RF24** 🔜 — O sistema deve oferecer um **copiloto de IA** (chat) para responder perguntas e **capturar dados por linguagem natural** — rodando via **modelo local (Ollama)**, grátis e privado. Regra: a IA interpreta/verbaliza, o **código calcula** (nunca inventa número).
 - **RF25** 🔜 — O sistema deve permitir **importar um extrato** bancário e sugerir a categorização das transações.
@@ -312,7 +312,8 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
 | `aliquotaImposto` | `number` | Percentual de imposto a reservar de cada receita (ex.: 6 = 6%) |
-| `percentualReserva` | `number` | Percentual da receita destinado ao colchão/reserva (ex.: 20 = 20%). Sai do dinheiro livre, mas permanece com o usuário (RF23) |
+| `reservaAtual` | `number` | Saldo do colchão que o usuário já tem guardado, em R$ (RF23) |
+| `mesesMetaReserva` | `number` | Meta do colchão em meses de despesas: 3, 6 ou 12 (RF23) |
 
 ### 7.5 Entidades futuras (roadmap)
 - **`Transacao`** — para importação de extrato (valor, data, descrição, categoria sugerida).
@@ -329,9 +330,9 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 - **RN06 — Fonte da verdade das categorias:** o hook `useCategorias` deve ser chamado **uma única vez** no componente pai e compartilhado por props (dois usos separados criariam estados divergentes).
 - **RN07 — Imposto reservado (MVP 🎯):** para cada receita, `imposto = valor × (aliquotaImposto / 100)`.
 - **RN08 — Cascata do dinheiro livre (✅):** para o mês corrente,
-  `dinheiro livre = Σ receitas do mês − Σ imposto reservado do mês − custo mensal total das despesas fixas − reserva do mês (RN09)`.
+  `dinheiro livre = Σ receitas do mês − Σ imposto reservado do mês − custo mensal total das despesas fixas`.
   Uma receita pertence ao mês da sua `data`.
-- **RN09 — Reserva/colchão (🎯):** `reserva do mês = Σ receitas do mês × (percentualReserva / 100)`. É a última saída da cascata (RN08), mas **permanece com o usuário** (diferente de imposto/despesa, que são perdas). O **cofre acumulado** = soma das reservas de todos os meses; os **meses de sobrevivência** = `cofre acumulado ÷ custo mensal total das despesas fixas` (quanto tempo o usuário se banca sem nenhuma receita).
+- **RN09 — Reserva/colchão (✅, modelo de meta):** `meta = custo mensal das despesas × mesesMetaReserva`; `progresso = saldo (reservaAtual) ÷ meta` (capado em 100%); `falta = max(0, meta − saldo)`; `meses de sobrevivência = saldo ÷ custo mensal das despesas` (quanto tempo o usuário se banca sem nenhuma receita). A reserva **não** entra na cascata da RN08 — é meta paralela, não desconto mensal.
 
 ---
 
@@ -348,7 +349,7 @@ Espelho da `Fatura`, mas do lado das **entradas**. Diferente da despesa (recorre
 | Painel: KPIs + evolução + origem da renda (RF30) | ✅ Feito |
 | Despesas por categoria (RF31) | ✅ Feito |
 | Fonte única de dados via Context (faturas) | ✅ Feito |
-| **Reserva/colchão: % + cofre + sobrevivência (RF23)** | 🎯 **Fase 2 — a fazer agora** |
+| Reserva/colchão: meta + progresso + sobrevivência (RF23) | ✅ Feito |
 | Recorrência de receita / metas | 🔜 Fase 2 (a desenhar) |
 | Backend Java/Spring + PostgreSQL | 🔜 Fase futura |
 | IA copiloto (Ollama local) + captura por linguagem natural (RF24) | 🔜 Planejado |

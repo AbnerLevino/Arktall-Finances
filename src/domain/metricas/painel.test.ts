@@ -20,7 +20,7 @@ describe('metricasDoPainel', () => {
   it('calcula comprometimento, taxa de sobra, média e variação', () => {
     const receitas = [receita(5000, '2026-08-10'), receita(10000, '2026-09-10')]
     const m = metricasDoPainel({
-      receitas, despesas: [despesa(2000)], aliquota: 10, mes: '2026-09', reserva: 0,
+      receitas, despesas: [despesa(2000)], aliquota: 10, mes: '2026-09',
     })
     // set: recebido 10000, imposto 1000, despesa 2000 → comprometido 3000 = 30%
     expect(Math.round(m.comprometimento!)).toBe(30)
@@ -34,23 +34,12 @@ describe('metricasDoPainel', () => {
 
   it('devolve null quando não há base (sem receita no mês, sem mês anterior)', () => {
     const m = metricasDoPainel({
-      receitas: [], despesas: [despesa(500)], aliquota: 10, mes: '2026-09', reserva: 0,
+      receitas: [], despesas: [despesa(500)], aliquota: 10, mes: '2026-09',
     })
     expect(m.comprometimento).toBeNull()
     expect(m.taxaSobra).toBeNull()
     expect(m.variacao).toBeNull()
     expect(m.mediaMensal).toBe(0)
-  })
-
-  it('calcula o cofre acumulado e os meses de sobrevivência', () => {
-    const receitas = [receita(5000, '2026-08-10'), receita(5000, '2026-09-10')]
-    const m = metricasDoPainel({
-      receitas, despesas: [despesa(2000)], aliquota: 0, mes: '2026-09', reserva: 20,
-    })
-    // cofre = (5000 + 5000) × 20% = 2000
-    expect(m.cofre).toBe(2000)
-    // sobrevivência = cofre 2000 ÷ despesa mensal 2000 = 1 mês
-    expect(m.mesesSobrevivencia).toBe(1)
   })
 })
 
@@ -58,7 +47,7 @@ describe('evolucaoMensal', () => {
   it('gera um ponto por mês com receita, ordenado do mais antigo', () => {
     const receitas = [receita(10000, '2026-09-10'), receita(5000, '2026-08-10')]
     const pontos = evolucaoMensal({
-      receitas, despesas: [despesa(2000)], aliquota: 10, reserva: 0,
+      receitas, despesas: [despesa(2000)], aliquota: 10,
     })
     expect(pontos.map((p) => p.mes)).toEqual(['2026-08', '2026-09'])
     expect(pontos[1]).toMatchObject({

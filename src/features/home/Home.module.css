@@ -317,11 +317,6 @@
   color: rgba(239, 68, 68, 0.7);
 }
 
-/* Reserva: também sai da cascata, mas é GUARDADA (não é perda) — dourado */
-.guardado {
-  color: var(--color-accent);
-}
-
 /* "Despesas fixas" clicável + pop-up horizontal com o detalhamento */
 .despesasWrap {
   position: relative;
@@ -488,13 +483,6 @@
   color: #ef4444;
 }
 
-/* Os dois campos de ajuste (alíquota + reserva) lado a lado */
-.ajustes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
 .aliquota {
   display: flex;
   flex-direction: column;
@@ -531,6 +519,139 @@
   color: var(--color-icon);
   opacity: 0.7;
   max-width: 320px;
+}
+
+/* ── Bloco da reserva de emergência (dentro do card, embaixo) ── */
+.reservaBloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.reservaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.reservaTitulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-icon-hover);
+}
+
+/* Seletor da meta (3 / 6 / 12 meses) — chips */
+.metaSeletor {
+  display: flex;
+  gap: 4px;
+}
+
+.metaBtn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--color-icon);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.metaBtn:hover {
+  color: var(--color-icon-hover);
+  border-color: var(--color-icon);
+}
+
+.metaBtnAtivo,
+.metaBtnAtivo:hover {
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.reservaValores {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.reservaSaldo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-icon-hover);
+  font-variant-numeric: tabular-nums;
+}
+
+.reservaMeta {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-icon);
+}
+
+.reservaPct {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra de progresso do colchão */
+.reservaBarra {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.reservaBarraFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transition: width 300ms ease;
+}
+
+.reservaInfo {
+  font-size: 12px;
+  color: var(--color-icon);
+}
+
+.reservaCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 260px;
+  margin-top: var(--space-2);
+}
+
+.reservaCampo span {
+  font-size: 12px;
+  color: var(--color-icon);
+}
+
+.reservaCampo input {
+  height: 42px;
+  padding: 0 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-icon-hover);
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 140ms ease;
+}
+
+.reservaCampo input:focus {
+  border-color: var(--color-accent);
 }
 
 

@@ -7,6 +7,7 @@ import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
 import { despesasPorCategoria } from '@/domain/fatura/calc'
+import { calcularReserva } from '@/domain/reserva/reserva'
 import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import { useFaturas } from '@/domain/fatura/faturasStore'
@@ -19,7 +20,7 @@ const NOME_USUARIO = 'Abner Levino'
 // Página inicial: a "vitrine" do dinheiro livre do mês.
 export function Home() {
   const { receitas, adicionar, editar, remover } = useReceitas()
-  const { config, setAliquota, setReserva } = useConfig()
+  const { config, setAliquota, setReservaAtual, setMesesMeta } = useConfig()
   const [modalAberto, setModalAberto] = useState(false)
   // receita em edição; null = modo criação
   const [receitaEditando, setReceitaEditando] = useState<Receita | null>(null)
@@ -62,7 +63,14 @@ export function Home() {
     despesas,
     aliquota: config.aliquotaImposto,
     mes: mesSelecionado,
-    reserva: config.percentualReserva,
+  })
+
+  // reserva de emergência (modelo meta: o sistema calcula tudo a partir das
+  // despesas + saldo informado; o usuário quase não digita)
+  const reserva = calcularReserva({
+    despesas,
+    reservaAtual: config.reservaAtual,
+    mesesMeta: config.mesesMetaReserva,
   })
 
   // receitas do mês em foco, mais recentes primeiro (para a lista)
@@ -306,44 +314,85 @@ export function Home() {
                 </div>
               )}
             </div>
-
-            {detalhe.reserva > 0 && (
-              <div className={styles.breakdownRow}>
-                <span className={styles.breakdownLabel}>
-                  Reserva ({config.percentualReserva}%)
-                </span>
-                <span className={`${styles.breakdownValue} ${styles.guardado}`}>
-                  − {formatarPreco(detalhe.reserva)}
-                </span>
-              </div>
-            )}
           </div>
         </div>
 
         <div className={styles.cardFooter}>
-          <div className={styles.ajustes}>
-            <label className={styles.aliquota}>
-              <span>Alíquota de imposto (%)</span>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={config.aliquotaImposto}
-                onChange={(e) => setAliquota(Number(e.target.value))}
-              />
-            </label>
-            <label className={styles.aliquota}>
-              <span>Reserva / colchão (%)</span>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                value={config.percentualReserva}
-                onChange={(e) => setReserva(Number(e.target.value))}
-              />
-            </label>
-          </div>
+          <label className={styles.aliquota}>
+            <span>Alíquota de imposto (%)</span>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={config.aliquotaImposto}
+              onChange={(e) => setAliquota(Number(e.target.value))}
+            />
+          </label>
           <span className={styles.aliquotaHelp}>{textoAliquota}</span>
+        </div>
+
+        {/* Bloco: reserva de emergência (modelo meta — o sistema diz quanto guardar) */}
+        <div className={styles.reservaBloco}>
+          <div className={styles.reservaHeader}>
+            <span className={styles.reservaTitulo}>🛟 Reserva de emergência</span>
+            <div className={styles.metaSeletor}>
+              {[3, 6, 12].map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  className={`${styles.metaBtn} ${config.mesesMetaReserva === m ? styles.metaBtnAtivo : ''}`}
+                  onClick={() => setMesesMeta(m)}
+                >
+                  {m} meses
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.reservaValores}>
+            <span className={styles.reservaSaldo}>
+              {formatarPreco(reserva.saldo)}{' '}
+              <span className={styles.reservaMeta}>
+                de {formatarPreco(reserva.meta)}
+              </span>
+            </span>
+            <span className={styles.reservaPct}>
+              {Math.round(reserva.progresso)}%
+            </span>
+          </div>
+
+          <div className={styles.reservaBarra}>
+            <div
+              className={styles.reservaBarraFill}
+              style={{ width: `${reserva.progresso}%` }}
+            />
+          </div>
+
+          <div className={styles.reservaInfo}>
+            {reserva.falta > 0
+              ? `Faltam ${formatarPreco(reserva.falta)}`
+              : 'Meta atingida! 🎉'}
+            {reserva.mesesSobrevivencia !== null && (
+              <>
+                {' · aguenta '}
+                {reserva.mesesSobrevivencia.toLocaleString('pt-BR', {
+                  maximumFractionDigits: 1,
+                })}
+                {reserva.mesesSobrevivencia === 1 ? ' mês' : ' meses'} sem receita
+              </>
+            )}
+          </div>
+
+          <label className={styles.reservaCampo}>
+            <span>Quanto você já tem guardado?</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={config.reservaAtual}
+              onChange={(e) => setReservaAtual(Number(e.target.value))}
+            />
+          </label>
         </div>
       </div>
 
