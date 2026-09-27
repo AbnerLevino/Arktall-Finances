@@ -334,12 +334,14 @@ export function Home() {
 
         {/* Bloco: colchão de segurança — o sistema diz quanto guardar pro próximo mês */}
         <div className={styles.reservaBloco}>
-          <span className={styles.reservaTitulo}>🛡️ Colchão de segurança</span>
+          <span className={styles.reservaTitulo}>
+            🛡️ Quanto guardar pra não ficar no vermelho
+          </span>
 
           {colchao.necessario > 0 ? (
             <>
               <div className={styles.reservaChamada}>
-                Pra não fechar no vermelho no próximo mês, tenha{' '}
+                No próximo mês, tenha{' '}
                 <strong>{formatarPreco(colchao.necessario)}</strong> guardado
               </div>
               <div className={styles.reservaComposicao}>
