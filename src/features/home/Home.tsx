@@ -7,7 +7,7 @@ import { dinheiroLivreDoMes } from '@/domain/receita/dinheiroLivre'
 import { receitasDoMes } from '@/domain/receita/filtros'
 import { gerarInsights } from '@/domain/insights/insights'
 import { despesasPorCategoria } from '@/domain/fatura/calc'
-import { calcularReserva } from '@/domain/reserva/reserva'
+import { calcularReserva, descreverSobrevivencia } from '@/domain/reserva/reserva'
 import { mesAnterior, mesSeguinte, formatarMesAno } from '@/lib/mes'
 import { formatarPreco, formatarDataCurta, formatarDataHora } from '@/lib/format'
 import { useFaturas } from '@/domain/fatura/faturasStore'
@@ -372,13 +372,10 @@ export function Home() {
             {reserva.falta > 0
               ? `Faltam ${formatarPreco(reserva.falta)}`
               : 'Meta atingida! 🎉'}
-            {reserva.mesesSobrevivencia !== null && (
+            {descreverSobrevivencia(reserva.mesesSobrevivencia) && (
               <>
                 {' · aguenta '}
-                {reserva.mesesSobrevivencia.toLocaleString('pt-BR', {
-                  maximumFractionDigits: 1,
-                })}
-                {reserva.mesesSobrevivencia === 1 ? ' mês' : ' meses'} sem receita
+                {descreverSobrevivencia(reserva.mesesSobrevivencia)} sem receita
               </>
             )}
           </div>

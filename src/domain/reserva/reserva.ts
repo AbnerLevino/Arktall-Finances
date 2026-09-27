@@ -34,3 +34,21 @@ export function calcularReserva({
 
   return { meta, saldo, falta, progresso, mesesSobrevivencia }
 }
+
+/**
+ * Traduz "meses de sobrevivência" pra uma frase humana:
+ * - a partir de 1 mês, fala em meses (1 mês, 2 meses...);
+ * - abaixo disso (saldo pequeno), fala em dias, que é o que autônomo sente.
+ * Retorna null quando não há despesas pra comparar.
+ */
+export function descreverSobrevivencia(meses: number | null): string | null {
+  if (meses === null) return null
+
+  if (meses >= 1) {
+    const arredondado = Math.round(meses)
+    return `${arredondado} ${arredondado === 1 ? 'mês' : 'meses'}`
+  }
+
+  const dias = Math.round(meses * 30)
+  return `${dias} ${dias === 1 ? 'dia' : 'dias'}`
+}

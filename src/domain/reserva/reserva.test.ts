@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calcularReserva } from './reserva'
+import { calcularReserva, descreverSobrevivencia } from './reserva'
 import type { Fatura } from '@/domain/fatura/types'
 
 function despesa(preco: number): Fatura {
@@ -39,5 +39,23 @@ describe('calcularReserva', () => {
     const r = calcularReserva({ despesas: [], reservaAtual: 500, mesesMeta: 6 })
     expect(r.meta).toBe(0)
     expect(r.mesesSobrevivencia).toBeNull()
+  })
+})
+
+describe('descreverSobrevivencia', () => {
+  it('a partir de 1 mês, fala em meses', () => {
+    expect(descreverSobrevivencia(1)).toBe('1 mês')
+    expect(descreverSobrevivencia(2.4)).toBe('2 meses')
+    expect(descreverSobrevivencia(3)).toBe('3 meses')
+  })
+
+  it('abaixo de 1 mês, fala em dias', () => {
+    expect(descreverSobrevivencia(0.6)).toBe('18 dias') // 0,6 × 30
+    expect(descreverSobrevivencia(0.5)).toBe('15 dias')
+    expect(descreverSobrevivencia(1 / 30)).toBe('1 dia')
+  })
+
+  it('sem despesas (null) não descreve nada', () => {
+    expect(descreverSobrevivencia(null)).toBeNull()
   })
 })
